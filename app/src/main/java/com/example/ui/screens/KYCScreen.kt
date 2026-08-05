@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -41,7 +42,7 @@ fun KYCScreen(
                 title = { Text("KYC & Compliance Verification", color = TextPrimaryDark, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = NavyDeep)
@@ -128,15 +129,15 @@ fun KYCScreen(
                     colors = CardDefaults.cardColors(containerColor = CardBackgroundDark)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Submit Identification Documents", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                        Text("Identity verification is required for international banking and commission payouts.", fontSize = 12.sp, color = TextSecondaryDark)
+                        Text("Submit Identification & Compliance Documents (India 🇮🇳)", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
+                        Text("Government of India PAN, Aadhaar & UPI Bank verification required for direct wallet payouts and GST compliance.", fontSize = 12.sp, color = TextSecondaryDark)
 
                         Spacer(modifier = Modifier.height(16.dp))
 
                         OutlinedTextField(
                             value = fullName,
                             onValueChange = { fullName = it },
-                            label = { Text("Full Legal Name") },
+                            label = { Text("Full Name (as per PAN Card)") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
                         )
@@ -146,7 +147,7 @@ fun KYCScreen(
                         OutlinedTextField(
                             value = idNumber,
                             onValueChange = { idNumber = it },
-                            label = { Text("Government ID / Passport Number") },
+                            label = { Text("PAN Number / Aadhaar Number / UPI ID") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
                         )
@@ -156,19 +157,19 @@ fun KYCScreen(
                         Text("Document Type:", fontSize = 12.sp, color = TextSecondaryDark)
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(
-                                selected = documentType == "Passport",
-                                onClick = { documentType = "Passport" },
-                                label = { Text("Passport") }
+                                selected = documentType == "PAN Card",
+                                onClick = { documentType = "PAN Card" },
+                                label = { Text("PAN Card") }
                             )
                             FilterChip(
-                                selected = documentType == "Driver License",
-                                onClick = { documentType = "Driver License" },
-                                label = { Text("Driver License") }
+                                selected = documentType == "Aadhaar Card",
+                                onClick = { documentType = "Aadhaar Card" },
+                                label = { Text("Aadhaar Card") }
                             )
                             FilterChip(
-                                selected = documentType == "National ID",
-                                onClick = { documentType = "National ID" },
-                                label = { Text("National ID") }
+                                selected = documentType == "Bank & UPI",
+                                onClick = { documentType = "Bank & UPI" },
+                                label = { Text("Bank & UPI") }
                             )
                         }
 

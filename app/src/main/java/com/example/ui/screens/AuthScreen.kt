@@ -71,7 +71,7 @@ fun AuthScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Shield,
-                contentDescription = "OmniControl Logo",
+                contentDescription = "EarnaGo Logo",
                 tint = NavyDeep,
                 modifier = Modifier.size(40.dp)
             )
@@ -80,14 +80,14 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "OmniControl",
+            text = "EarnaGo",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = TextPrimaryDark
         )
 
         Text(
-            text = "AI-Powered Product Network Marketing OS",
+            text = "Autonomous AI Digital Business & Network Platform",
             fontSize = 14.sp,
             color = TextSecondaryDark,
             textAlign = TextAlign.Center
@@ -265,23 +265,65 @@ fun AuthScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Create Account & Sign In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("Join as Member (₹1,000 Bonus)", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         } else {
-            Button(
-                onClick = {
-                    onAuthSuccess()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
-                shape = RoundedCornerShape(12.dp)
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Button(
+                    onClick = {
+                        onAuthSuccess()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "Enter Portal as ${activeUser?.fullName ?: "Member"}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        viewModel.switchActiveUser("usr_owner")
+                        onAuthSuccess()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = AccentGold),
+                    shape = RoundedCornerShape(12.dp),
+                    border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(AccentGold, RoyalBlue)))
+                ) {
+                    Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Owner Master Login (Bank & 5% Royalty Control)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Sole Ownership & Copyright Notice
+        Card(
+            colors = CardDefaults.cardColors(containerColor = NavyDeep.copy(alpha = 0.6f)),
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = AccentGold, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Enter Portal as ${activeUser?.fullName ?: "Member"}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "Copyright © 2026 EarnaGo Platform. All rights & intellectual property reserved to sole founder owner. 5% platform royalty auto-credited to owner bank account.",
+                    fontSize = 11.sp,
+                    color = TextSecondaryDark,
+                    lineHeight = 15.sp
                 )
             }
         }

@@ -10,7 +10,9 @@ enum class TransactionType {
     PAYOUT_DEBIT,
     ORDER_PAYMENT,
     WALLET_DEPOSIT,
-    ADMIN_ADJUSTMENT
+    ADMIN_ADJUSTMENT,
+    TASK_COMPLETION_EARNING,
+    PLATFORM_ROYALTY_DEDUCTION
 }
 
 enum class TransactionStatus {

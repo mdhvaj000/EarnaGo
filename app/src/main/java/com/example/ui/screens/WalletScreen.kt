@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -44,7 +45,7 @@ fun WalletScreen(
                 title = { Text("Multi-Currency Ledger & Wallet", color = TextPrimaryDark, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = NavyDeep)
@@ -70,7 +71,7 @@ fun WalletScreen(
                     Column(modifier = Modifier.padding(20.dp)) {
                         Text("Available Wallet Balance", fontSize = 12.sp, color = TextSecondaryDark)
                         Text(
-                            text = "$${String.format("%.2f", user.walletBalance)}",
+                            text = "₹${String.format("%.2f", user.walletBalance)}",
                             fontSize = 32.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = EmeraldSuccess
@@ -121,7 +122,7 @@ fun WalletScreen(
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
                             Text("Pending Commissions", fontSize = 11.sp, color = TextSecondaryDark)
-                            Text("$${String.format("%.2f", user.pendingCommission)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AmberWarning)
+                            Text("₹${String.format("%.2f", user.pendingCommission)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AmberWarning)
                         }
                     }
 
@@ -132,7 +133,7 @@ fun WalletScreen(
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
                             Text("Total Paid Out", fontSize = 11.sp, color = TextSecondaryDark)
-                            Text("$${String.format("%.2f", user.totalPaidOut)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
+                            Text("₹${String.format("%.2f", user.totalPaidOut)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
                         }
                     }
                 }
@@ -192,7 +193,7 @@ fun WalletScreen(
                             }
 
                             Text(
-                                text = "${if (isCredit) "+" else "-"}$${String.format("%.2f", tx.amount)}",
+                                text = "${if (isCredit) "+" else "-"}₹${String.format("%.2f", tx.amount)}",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = if (isCredit) EmeraldSuccess else CrimsonError
@@ -211,12 +212,12 @@ fun WalletScreen(
             title = { Text("Deposit Wallet Funds", fontWeight = FontWeight.Bold, color = TextPrimaryDark) },
             text = {
                 Column {
-                    Text("Enter deposit amount to top up your internal wallet:", fontSize = 12.sp, color = TextSecondaryDark)
+                    Text("Enter deposit amount to top up via UPI or NetBanking:", fontSize = 12.sp, color = TextSecondaryDark)
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = inputAmount,
                         onValueChange = { inputAmount = it },
-                        label = { Text("Amount ($ USD)") },
+                        label = { Text("Amount (₹ INR)") },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -247,7 +248,7 @@ fun WalletScreen(
     if (showWithdrawModal) {
         AlertDialog(
             onDismissRequest = { showWithdrawModal = false },
-            title = { Text("Request Bank Withdrawal", fontWeight = FontWeight.Bold, color = TextPrimaryDark) },
+            title = { Text("Request UPI / Bank Payout", fontWeight = FontWeight.Bold, color = TextPrimaryDark) },
             text = {
                 Column {
                     if (user.kycStatus != KycStatus.APPROVED) {
@@ -257,19 +258,19 @@ fun WalletScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "⚠️ KYC Verification required before withdrawal. Please complete KYC submission first.",
+                                text = "⚠️ PAN & Bank/Aadhaar KYC Verification required before withdrawal. Please complete KYC submission first.",
                                 modifier = Modifier.padding(10.dp),
                                 color = CrimsonError,
                                 fontSize = 12.sp
                             )
                         }
                     } else {
-                        Text("Available for payout: $${String.format("%.2f", user.walletBalance)}", fontSize = 12.sp, color = TextSecondaryDark)
+                        Text("Available for payout: ₹${String.format("%.2f", user.walletBalance)}", fontSize = 12.sp, color = TextSecondaryDark)
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedTextField(
                             value = inputAmount,
                             onValueChange = { inputAmount = it },
-                            label = { Text("Withdrawal Amount ($ USD)") },
+                            label = { Text("Withdrawal Amount (₹ INR)") },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -288,7 +289,7 @@ fun WalletScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep)
                     ) {
-                        Text("Request Wire Payout", fontWeight = FontWeight.Bold)
+                        Text("Request UPI Payout", fontWeight = FontWeight.Bold)
                     }
                 }
             },

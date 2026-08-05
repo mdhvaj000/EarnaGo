@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,7 +51,7 @@ fun AIBusinessAssistantScreen(
                 title = { Text("AI Business Assistant", color = TextPrimaryDark, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = NavyDeep)
@@ -118,7 +120,7 @@ fun AIBusinessAssistantScreen(
                             .clip(CircleShape)
                             .background(AccentGold)
                     ) {
-                        Icon(Icons.Default.Send, contentDescription = "Send", tint = NavyDeep)
+                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = NavyDeep)
                     }
                 }
             }
@@ -141,7 +143,7 @@ fun AIBusinessAssistantScreen(
                 ) {
                     Icon(Icons.Default.Psychology, contentDescription = null, tint = AccentGold, modifier = Modifier.size(56.dp))
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("OmniControl AI Coach", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
+                    Text("EarnaGo AI Coach", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
                     Text(
                         "Ask strategy questions, generate marketing copy, or analyze sales volume predictions for your downline.",
                         fontSize = 13.sp,
@@ -224,7 +226,7 @@ fun AIMessageBubble(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (isUser) "You" else "OmniControl AI",
+                        text = if (isUser) "You" else "EarnaGo AI",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isUser) Color.White.copy(alpha = 0.8f) else AccentGold

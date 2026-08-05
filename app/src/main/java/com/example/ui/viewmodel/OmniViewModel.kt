@@ -94,6 +94,14 @@ class OmniViewModel(application: Application) : AndroidViewModel(application) {
         .flatMapLatest { userId -> repository.aiDao.getMessagesByUserId(userId) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // 15 Module Tasks
+    val allTasks: StateFlow<List<EarnaGoTaskEntity>> = repository.taskDao.getAllTasks()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // Owner Profile State
+    val ownerProfile: StateFlow<OwnerProfileEntity?> = repository.ownerProfileDao.getOwnerProfileFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     // UI Feedback Message
     private val _uiEvent = MutableStateFlow<String?>(null)
     val uiEvent: StateFlow<String?> = _uiEvent.asStateFlow()
@@ -106,6 +114,10 @@ class OmniViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearUiEvent() {
         _uiEvent.value = null
+    }
+
+    fun postUiMessage(msg: String) {
+        _uiEvent.value = msg
     }
 
     fun switchActiveUser(userId: String) {
@@ -267,7 +279,7 @@ class OmniViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             _activeUserId.value = newUserId
-            _uiEvent.value = "Welcome to OmniControl, $fullName! Starter $100 wallet bonus credited."
+            _uiEvent.value = "Welcome to EarnaGo, $fullName! Starter ₹1,000 wallet bonus credited."
         }
     }
 
@@ -300,6 +312,26 @@ class OmniViewModel(application: Application) : AndroidViewModel(application) {
                 category = category
             )
             repository.aiDao.insertMessage(aiMsg)
+        }
+    }
+
+    fun completeTask(taskId: String) {
+        viewModelScope.launch {
+            val result = repository.completeTaskAndDistributeRoyalty(_activeUserId.value, taskId)
+            result.onSuccess { (netEarning, ownerRoyalty) ->
+                _uiEvent.value = "Task completed! Earned ₹${String.format("%.2f", netEarning)} (5% Royalty ₹${String.format("%.2f", ownerRoyalty)} sent to Owner Bank Account)."
+            }.onFailure { err ->
+                _uiEvent.value = "Task Completion Error: ${err.message}"
+            }
+        }
+    }
+
+    fun updateOwnerProfile(profile: OwnerProfileEntity) {
+        viewModelScope.launch {
+            val result = repository.updateOwnerProfile(profile)
+            result.onSuccess {
+                _uiEvent.value = "Owner Bank & Platform Royalty settings updated successfully!"
+            }
         }
     }
 }

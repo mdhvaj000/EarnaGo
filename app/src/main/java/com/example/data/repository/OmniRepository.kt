@@ -22,21 +22,219 @@ class OmniRepository(
     val referralDao = db.referralDao()
     val kycDao = db.kycDao()
     val aiDao = db.aiDao()
+    val taskDao = db.taskDao()
+    val ownerProfileDao = db.ownerProfileDao()
 
     // Pre-populate sample seed data if database is empty
     suspend fun seedInitialDataIfNeeded() = withContext(Dispatchers.IO) {
+        // Seed Owner Profile
+        val existingOwner = ownerProfileDao.getOwnerProfile()
+        if (existingOwner == null) {
+            ownerProfileDao.insertOrUpdateOwnerProfile(OwnerProfileEntity())
+        }
+
+        // Seed Initial 15 Module Tasks
+        val existingTasks = taskDao.getAllTasks().firstOrNull()
+        if (existingTasks.isNullOrEmpty()) {
+            val sampleTasks = listOf(
+                EarnaGoTaskEntity(
+                    id = "task_01",
+                    module = EarnaGoModuleCategory.AFFILIATE_MARKETING,
+                    title = "Amazon Associates Electronics Promotion",
+                    description = "Share Amazon affiliate deal links for smart noise-canceling headphones with your network.",
+                    partnerName = "Amazon India Associates",
+                    rewardAmount = 450.0,
+                    commissionPct = 8.5,
+                    requirements = "Generate at least 3 valid buyer clicks or 1 order",
+                    estimatedTime = "15 mins",
+                    difficulty = "Easy",
+                    bvValue = 100.0,
+                    actionUrl = "https://amazon.in/affiliate"
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_02",
+                    module = EarnaGoModuleCategory.DIGITAL_PRODUCTS,
+                    title = "Canva Social Media Template Suite",
+                    description = "Promote & sell the 200+ Instagram & LinkedIn high-converting canvas template bundle.",
+                    partnerName = "EarnaGo Digital Hub",
+                    rewardAmount = 850.0,
+                    commissionPct = 25.0,
+                    requirements = "Direct sale of 1 digital template pack",
+                    estimatedTime = "30 mins",
+                    difficulty = "Easy",
+                    bvValue = 350.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_03",
+                    module = EarnaGoModuleCategory.AI_SERVICES,
+                    title = "AI Corporate Logo & Voiceover Scripting",
+                    description = "Use EarnaGo AI tools to generate brand logos, social graphics, and Hindi AI voiceovers for client business.",
+                    partnerName = "EarnaGo AI Studio",
+                    rewardAmount = 1200.0,
+                    requirements = "Submit 3 generated logo assets and MP3 audio link",
+                    estimatedTime = "45 mins",
+                    difficulty = "Medium",
+                    bvValue = 500.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_04",
+                    module = EarnaGoModuleCategory.FREELANCE_GIGS,
+                    title = "Android App UI Jetpack Compose Refactoring",
+                    description = "Help local MSME client fix responsive layout spacing and dark theme styling in Jetpack Compose.",
+                    partnerName = "TechGig India",
+                    rewardAmount = 2500.0,
+                    requirements = "Provide clean Kotlin code snippet or pull request",
+                    estimatedTime = "2 hours",
+                    difficulty = "Advanced",
+                    bvValue = 1000.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_05",
+                    module = EarnaGoModuleCategory.ONLINE_LEARNING,
+                    title = "Direct Selling Legal Rules & Ethics Masterclass",
+                    description = "Complete the 40-minute certification course on Consumer Protection Direct Selling Rules 2021.",
+                    partnerName = "EarnaGo Academy",
+                    rewardAmount = 600.0,
+                    requirements = "Score 80%+ in final compliance quiz",
+                    estimatedTime = "40 mins",
+                    difficulty = "Easy",
+                    bvValue = 250.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_06",
+                    module = EarnaGoModuleCategory.REFERRAL_NETWORK,
+                    title = "Sponsor Tier 1 Direct Downline Mission",
+                    description = "Share your unique referral link to enroll new active business partners into your network tree.",
+                    partnerName = "EarnaGo Direct MLM Network",
+                    rewardAmount = 1000.0,
+                    requirements = "1 verified member registration with starter product activation",
+                    estimatedTime = "1 hour",
+                    difficulty = "Medium",
+                    bvValue = 800.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_07",
+                    module = EarnaGoModuleCategory.CASHBACK_COUPONS,
+                    title = "Flipkart Festival Shopping Cashback Campaign",
+                    description = "Share exclusive 15% discount coupons for home appliances and earn instant cashback credit.",
+                    partnerName = "Flipkart Affiliate / EarnKaro",
+                    rewardAmount = 350.0,
+                    requirements = "Coupon redemption by 2 unique shoppers",
+                    estimatedTime = "20 mins",
+                    difficulty = "Easy",
+                    bvValue = 120.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_08",
+                    module = EarnaGoModuleCategory.MICRO_TASKS_SURVEYS,
+                    title = "Fintech Mobile Banking Usability Audit",
+                    description = "Answer 12 survey questions and evaluate UPI payment flow speed on mobile browsers.",
+                    partnerName = "SurveyMonkey / UserTesting",
+                    rewardAmount = 300.0,
+                    requirements = "Complete survey form with accurate feedback",
+                    estimatedTime = "15 mins",
+                    difficulty = "Easy",
+                    bvValue = 80.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_09",
+                    module = EarnaGoModuleCategory.LOCAL_BUSINESS,
+                    title = "Local City Restaurant & Gym Onboarding",
+                    description = "Visit or contact local shops in your city to list their services on EarnaGo Local Directory.",
+                    partnerName = "EarnaGo City Hyperlocal",
+                    rewardAmount = 1500.0,
+                    requirements = "Upload shop details, UPI VPA, and owner consent photo",
+                    estimatedTime = "1.5 hours",
+                    difficulty = "Medium",
+                    bvValue = 600.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_10",
+                    module = EarnaGoModuleCategory.DIGITAL_UTILITIES,
+                    title = "FASTag Recharge & Electricity Bill Pay Deal",
+                    description = "Pay monthly electricity bills or FASTag recharges for team members or clients.",
+                    partnerName = "Bharat BillPay (BBPS)",
+                    rewardAmount = 180.0,
+                    requirements = "Complete transaction above ₹500",
+                    estimatedTime = "5 mins",
+                    difficulty = "Easy",
+                    bvValue = 50.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_11",
+                    module = EarnaGoModuleCategory.DROPSHIPPING,
+                    title = "Zero-Inventory AMOLED Smartwatch Sale",
+                    description = "Sell zero-inventory smartwatch directly from verified suppliers to customers across India.",
+                    partnerName = "Shiprocket / Supplier Direct",
+                    rewardAmount = 950.0,
+                    requirements = "Submit customer delivery address and prepaid order",
+                    estimatedTime = "30 mins",
+                    difficulty = "Medium",
+                    bvValue = 400.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_12",
+                    module = EarnaGoModuleCategory.CREATOR_ECONOMY,
+                    title = "YouTube Shorts & Instagram Reel Monetization",
+                    description = "Post an unboxing reel or YouTube Short highlighting EarnaGo Digital Business Suite.",
+                    partnerName = "Creator Studio India",
+                    rewardAmount = 800.0,
+                    requirements = "Minimum 500 views or 50 engagement likes",
+                    estimatedTime = "1 hour",
+                    difficulty = "Medium",
+                    bvValue = 300.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_13",
+                    module = EarnaGoModuleCategory.RESELLING_COMMERCE,
+                    title = "Wholesale Kurti & Festive Wear Margin Reselling",
+                    description = "Add your own retail profit margin to wholesale ethnic wear catalogs and share via WhatsApp.",
+                    partnerName = "EarnaGo Reseller Hub",
+                    rewardAmount = 1100.0,
+                    requirements = "1 confirmed retail customer delivery order",
+                    estimatedTime = "45 mins",
+                    difficulty = "Easy",
+                    bvValue = 450.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_14",
+                    module = EarnaGoModuleCategory.JOB_GIG_MARKETPLACE,
+                    title = "Remote Data Entry & CRM Lead Clean-up Gig",
+                    description = "Categorize and format 50 prospective business leads into structured CSV format.",
+                    partnerName = "WorkFromHome India",
+                    rewardAmount = 1800.0,
+                    requirements = "Submit verified Excel/CSV spreadsheet",
+                    estimatedTime = "2 hours",
+                    difficulty = "Medium",
+                    bvValue = 700.0
+                ),
+                EarnaGoTaskEntity(
+                    id = "task_15",
+                    module = EarnaGoModuleCategory.B2B_WHOLESALE,
+                    title = "B2B Solar Micro-Inverter Wholesale Procurement",
+                    description = "Connect commercial solar contractors with factory-direct solar inverter manufacturers.",
+                    partnerName = "Indiamart / B2B Connect",
+                    rewardAmount = 3500.0,
+                    requirements = "Successful B2B buyer verification & purchase intent quote",
+                    estimatedTime = "3 hours",
+                    difficulty = "Advanced",
+                    bvValue = 1500.0
+                )
+            )
+            taskDao.insertAllTasks(sampleTasks)
+        }
         val existingProducts = productDao.getAllActiveProducts().firstOrNull()
         if (existingProducts.isNullOrEmpty()) {
-            // Seed Default Products
+            // Seed Default Products (Indian Market Environment)
             val products = listOf(
                 ProductEntity(
                     id = "prod_001",
-                    sku = "OMNI-DIG-01",
-                    name = "OmniControl Digital Academy Suite",
-                    description = "Comprehensive digital business OS, marketing funnel generator, and automation tools.",
-                    price = 199.99,
-                    bvWeight = 150.0,
-                    pvWeight = 150.0,
+                    sku = "EARN-DIG-IN",
+                    name = "EarnaGo Digital Business & AI Suite (1 Year)",
+                    description = "Complete digital marketing OS, funnel builder, WhatsApp lead generator, and AI business coach.",
+                    price = 9999.00,
+                    bvWeight = 800.0,
+                    pvWeight = 800.0,
                     category = ProductCategory.DIGITAL,
                     stockQuantity = 999,
                     imageUrl = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
@@ -44,52 +242,52 @@ class OmniRepository(
                 ),
                 ProductEntity(
                     id = "prod_002",
-                    sku = "OMNI-KIT-01",
-                    name = "Enterprise Ambassador Starter Pack",
-                    description = "Physical branding merchandise, product samples, hardware RFID tokens, and training kit.",
-                    price = 499.00,
-                    bvWeight = 400.0,
-                    pvWeight = 400.0,
+                    sku = "OMNI-AYUR-01",
+                    name = "OmniAyur Bio-Health & Focus Kit (3 Month Supply)",
+                    description = "Certified Ayurvedic wellness boosters, organic ashwagandha & herbal vitality supplements.",
+                    price = 4999.00,
+                    bvWeight = 350.0,
+                    pvWeight = 350.0,
                     category = ProductCategory.STARTER_KIT,
-                    stockQuantity = 150,
-                    imageUrl = "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80",
+                    stockQuantity = 450,
+                    imageUrl = "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80",
                     isFeatured = true
                 ),
                 ProductEntity(
                     id = "prod_003",
-                    sku = "OMNI-SVC-01",
-                    name = "AI Lead Generation & Social Automation (1 Year)",
-                    description = "Automated social post generation, team performance predictive insights, and lead tracking.",
-                    price = 299.99,
-                    bvWeight = 250.0,
-                    pvWeight = 250.0,
-                    category = ProductCategory.SERVICE,
-                    stockQuantity = 999,
-                    imageUrl = "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=600&q=80",
+                    sku = "OMNI-ORG-01",
+                    name = "OmniSpices & Organic Tea Ambassador Box",
+                    description = "Premium export-quality Darjeeling green tea, organic turmeric, and spice gift hamper.",
+                    price = 2499.00,
+                    bvWeight = 180.0,
+                    pvWeight = 180.0,
+                    category = ProductCategory.PHYSICAL,
+                    stockQuantity = 600,
+                    imageUrl = "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80",
                     isFeatured = false
                 ),
                 ProductEntity(
                     id = "prod_004",
-                    sku = "OMNI-PHY-01",
-                    name = "OmniBio Health & Focus Supplements (3 Month Supply)",
-                    description = "Premium nutritional bio-hacking supplements for elite performers and sales executives.",
-                    price = 149.50,
-                    bvWeight = 120.0,
-                    pvWeight = 120.0,
-                    category = ProductCategory.PHYSICAL,
-                    stockQuantity = 320,
-                    imageUrl = "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80",
-                    isFeatured = false
+                    sku = "OMNI-SOLAR-01",
+                    name = "OmniSolar Micro-Inverter & Emergency Energy Kit",
+                    description = "Portable solar power kit with 50W foldable panel and fast USB-C charging station.",
+                    price = 18500.00,
+                    bvWeight = 1500.0,
+                    pvWeight = 1500.0,
+                    category = ProductCategory.SERVICE,
+                    stockQuantity = 120,
+                    imageUrl = "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=600&q=80",
+                    isFeatured = true
                 )
             )
             productDao.insertAllProducts(products)
 
-            // Seed Sample Hierarchy & Users
+            // Seed Sample Hierarchy & Users (Indian Environment Context)
             val ownerUser = UserEntity(
                 id = "usr_owner",
-                fullName = "Eleanor Vance (System Owner)",
-                email = "owner@omnicontrol.com",
-                phone = "+1 800-555-0100",
+                fullName = "Vikramaditya Singhania (Owner)",
+                email = "owner@omnicontrol.in",
+                phone = "+91 98110 01100",
                 role = UserRole.OWNER,
                 rank = UserRank.AMBASSADOR,
                 kycStatus = KycStatus.APPROVED,
@@ -98,15 +296,15 @@ class OmniRepository(
                 personalVolume = 2500.0,
                 teamVolume = 125000.0,
                 directDownlineCount = 12,
-                walletBalance = 15420.50,
-                totalPaidOut = 84000.0
+                walletBalance = 154200.50,
+                totalPaidOut = 840000.0
             )
 
             val adminUser = UserEntity(
                 id = "usr_admin",
-                fullName = "Marcus Sterling (Admin)",
-                email = "admin@omnicontrol.com",
-                phone = "+1 800-555-0101",
+                fullName = "Rajesh Sharma (Admin)",
+                email = "admin@omnicontrol.in",
+                phone = "+91 98220 02200",
                 role = UserRole.ADMIN,
                 rank = UserRank.DIRECTOR,
                 kycStatus = KycStatus.APPROVED,
@@ -115,26 +313,26 @@ class OmniRepository(
                 personalVolume = 1200.0,
                 teamVolume = 45000.0,
                 directDownlineCount = 8,
-                walletBalance = 4850.00,
-                totalPaidOut = 22000.0
+                walletBalance = 48500.00,
+                totalPaidOut = 220000.0
             )
 
             val memberUser = UserEntity(
                 id = "usr_member",
-                fullName = "Alex Mercer (Executive Member)",
-                email = "alex.mercer@omnicontrol.com",
-                phone = "+1 555-0199",
+                fullName = "Rohan Verma (Executive Member)",
+                email = "rohan.verma@omnicontrol.in",
+                phone = "+91 98765 43210",
                 role = UserRole.MEMBER,
                 rank = UserRank.EXECUTIVE,
                 kycStatus = KycStatus.APPROVED,
                 sponsorId = "usr_admin",
-                referralCode = "ALEX-M88",
+                referralCode = "ROHAN-V88",
                 personalVolume = 650.0,
                 teamVolume = 3200.0,
                 directDownlineCount = 4,
-                walletBalance = 1280.40,
-                pendingCommission = 340.00,
-                totalPaidOut = 4500.00
+                walletBalance = 12800.40,
+                pendingCommission = 3400.00,
+                totalPaidOut = 45000.00
             )
 
             val downlineMember1 = UserEntity(
@@ -490,6 +688,74 @@ class OmniRepository(
         if (user != null) {
             userDao.insertOrUpdateUser(user.copy(kycStatus = newStatus))
         }
+        Result.success(Unit)
+    }
+
+    // Complete Task from 15 Modules with Auto 5% Owner Royalty Deducted
+    suspend fun completeTaskAndDistributeRoyalty(userId: String, taskId: String): Result<Pair<Double, Double>> = withContext(Dispatchers.IO) {
+        val user = userDao.getUserById(userId) ?: return@withContext Result.failure(Exception("Member not found"))
+        val tasks = taskDao.getAllTasks().firstOrNull() ?: emptyList()
+        val task = tasks.find { it.id == taskId } ?: return@withContext Result.failure(Exception("Task not found"))
+
+        if (task.isCompleted) {
+            return@withContext Result.failure(Exception("Task already completed."))
+        }
+
+        // 1. Fetch Owner Profile for Royalty Rate
+        val ownerProfile = ownerProfileDao.getOwnerProfile() ?: OwnerProfileEntity()
+        val royaltyRate = ownerProfile.platformRoyaltyPct / 100.0 // 5.0% -> 0.05
+        val grossReward = task.rewardAmount
+        val ownerRoyaltyAmount = grossReward * royaltyRate
+        val memberNetEarnings = grossReward - ownerRoyaltyAmount
+
+        // 2. Mark Task Completed
+        taskDao.markTaskCompleted(taskId)
+
+        // 3. Credit Member Wallet with 95% Net Earnings
+        val updatedMember = user.copy(
+            walletBalance = user.walletBalance + memberNetEarnings,
+            teamVolume = user.teamVolume + task.bvValue,
+            personalVolume = user.personalVolume + task.bvValue
+        )
+        userDao.insertOrUpdateUser(updatedMember)
+
+        walletDao.insertTransaction(
+            WalletTransactionEntity(
+                id = UUID.randomUUID().toString(),
+                userId = userId,
+                amount = memberNetEarnings,
+                type = TransactionType.TASK_COMPLETION_EARNING,
+                status = TransactionStatus.COMPLETED,
+                description = "Earned from ${task.module.displayName}: ${task.title} (₹${String.format("%.2f", grossReward)} gross minus 5% owner royalty)"
+            )
+        )
+
+        // 4. Credit Owner Royalty Ledger & Owner Wallet (5%)
+        ownerProfileDao.addRoyaltyEarnings(ownerRoyaltyAmount)
+
+        val ownerUser = userDao.getUserById("usr_owner")
+        if (ownerUser != null) {
+            val updatedOwnerUser = ownerUser.copy(walletBalance = ownerUser.walletBalance + ownerRoyaltyAmount)
+            userDao.insertOrUpdateUser(updatedOwnerUser)
+
+            walletDao.insertTransaction(
+                WalletTransactionEntity(
+                    id = UUID.randomUUID().toString(),
+                    userId = ownerUser.id,
+                    amount = ownerRoyaltyAmount,
+                    type = TransactionType.PLATFORM_ROYALTY_DEDUCTION,
+                    status = TransactionStatus.COMPLETED,
+                    description = "5% Platform Royalty from Member ${user.fullName} (${task.module.displayName})"
+                )
+            )
+        }
+
+        Result.success(Pair(memberNetEarnings, ownerRoyaltyAmount))
+    }
+
+    // Update Owner Profile Bank Details & Royalty Config
+    suspend fun updateOwnerProfile(profile: OwnerProfileEntity): Result<Unit> = withContext(Dispatchers.IO) {
+        ownerProfileDao.insertOrUpdateOwnerProfile(profile)
         Result.success(Unit)
     }
 }

@@ -23,6 +23,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.data.model.EarnaGoModuleCategory
+import com.example.data.model.EarnaGoTaskEntity
 import com.example.data.model.KycStatus
 import com.example.data.model.UserRole
 import com.example.ui.theme.*
@@ -36,8 +42,16 @@ fun MemberHomeScreen(
     val activeUser by viewModel.activeUser.collectAsState()
     val orders by viewModel.userOrders.collectAsState()
     val commissions by viewModel.userCommissions.collectAsState()
+    val allTasks by viewModel.allTasks.collectAsState()
+
+    var selectedModuleFilter by remember { mutableStateOf<EarnaGoModuleCategory?>(null) }
 
     val user = activeUser ?: return
+
+    val filteredTasks = remember(allTasks, selectedModuleFilter) {
+        if (selectedModuleFilter == null) allTasks
+        else allTasks.filter { it.module == selectedModuleFilter }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -126,7 +140,7 @@ fun MemberHomeScreen(
                         Column {
                             Text("Available Wallet", fontSize = 12.sp, color = TextSecondaryDark)
                             Text(
-                                text = "$${String.format("%.2f", user.walletBalance)}",
+                                text = "₹${String.format("%.2f", user.walletBalance)}",
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = EmeraldSuccess
@@ -230,7 +244,7 @@ fun MemberHomeScreen(
                     )
                     KpiCard(
                         title = "Total Paid Out",
-                        value = "$${String.format("%.2f", user.totalPaidOut)}",
+                        value = "₹${String.format("%.2f", user.totalPaidOut)}",
                         icon = Icons.Default.MonetizationOn,
                         accentColor = EmeraldSuccess,
                         modifier = Modifier.weight(1f)
@@ -301,6 +315,29 @@ fun MemberHomeScreen(
                         modifier = Modifier.weight(1f)
                     )
 
+                    ActionTile(
+                        title = "Legal Charter",
+                        subtitle = "Govt Rules 2021",
+                        icon = Icons.Default.Gavel,
+                        color = AccentGold,
+                        onClick = { onNavigateTo("legal_charter") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    ActionTile(
+                        title = "Live Broadcast",
+                        subtitle = "Market & Stream",
+                        icon = Icons.Default.LiveTv,
+                        color = VibrantCyan,
+                        onClick = { onNavigateTo("live_stream") },
+                        modifier = Modifier.weight(1f)
+                    )
+
                     if (user.role == UserRole.OWNER || user.role == UserRole.ADMIN) {
                         ActionTile(
                             title = "Owner Panel",
@@ -310,12 +347,182 @@ fun MemberHomeScreen(
                             onClick = { onNavigateTo("admin_console") },
                             modifier = Modifier.weight(1f)
                         )
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }
         }
 
-        // 5. Recent Activity / Orders
+        // 5. 15 Earning Modules & Microsecond Internet Live Tasks
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "15 Live Earning Marketplace Channels",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimaryDark
+                        )
+                        Text(
+                            text = "Internet Microsecond Synced • 95% Member Payout • 5% Owner Bank Royalty",
+                            fontSize = 11.sp,
+                            color = AccentGold
+                        )
+                    }
+
+                    Badge(containerColor = EmeraldSuccess) {
+                        Text("${filteredTasks.size} Tasks Active", color = NavyDeep, fontWeight = FontWeight.Bold, modifier = Modifier.padding(2.dp))
+                    }
+                }
+
+                // 15 Module Filter Chips Row
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    item {
+                        FilterChip(
+                            selected = selectedModuleFilter == null,
+                            onClick = { selectedModuleFilter = null },
+                            label = { Text("All 15 Modules", fontWeight = FontWeight.Bold) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = AccentGold,
+                                selectedLabelColor = NavyDeep,
+                                containerColor = DarkSlate,
+                                labelColor = TextPrimaryDark
+                            )
+                        )
+                    }
+
+                    items(EarnaGoModuleCategory.values()) { category ->
+                        FilterChip(
+                            selected = selectedModuleFilter == category,
+                            onClick = { selectedModuleFilter = if (selectedModuleFilter == category) null else category },
+                            label = { Text(category.displayName) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = RoyalBlue,
+                                selectedLabelColor = Color.White,
+                                containerColor = DarkSlate,
+                                labelColor = TextSecondaryDark
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        // Display Tasks
+        items(filteredTasks) { task ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = CardBackgroundDark),
+                border = CardDefaults.outlinedCardBorder().copy(
+                    brush = Brush.horizontalGradient(listOf(SurfaceBorderDark, RoyalBlue.copy(alpha = 0.4f)))
+                )
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = RoyalBlue.copy(alpha = 0.2f)
+                        ) {
+                            Text(
+                                text = task.module.displayName,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = AccentGold
+                            )
+                        }
+
+                        Text(
+                            text = task.partnerName,
+                            fontSize = 11.sp,
+                            color = TextSecondaryDark,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = task.title,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimaryDark
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = task.description,
+                        fontSize = 12.sp,
+                        color = TextSecondaryDark,
+                        lineHeight = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            val netAmount = task.rewardAmount * 0.95
+                            val royaltyAmount = task.rewardAmount * 0.05
+                            Text(
+                                text = "₹${String.format("%.2f", netAmount)} Net Earning",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = EmeraldSuccess
+                            )
+                            Text(
+                                text = "Gross ₹${String.format("%.0f", task.rewardAmount)} (5% Royalty ₹${String.format("%.2f", royaltyAmount)} to Owner)",
+                                fontSize = 10.sp,
+                                color = TextSecondaryDark
+                            )
+                        }
+
+                        if (task.isCompleted) {
+                            Button(
+                                onClick = {},
+                                enabled = false,
+                                colors = ButtonDefaults.buttonColors(containerColor = EmeraldSuccess.copy(alpha = 0.2f)),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = EmeraldSuccess, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Completed", color = EmeraldSuccess, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        } else {
+                            Button(
+                                onClick = {
+                                    viewModel.completeTask(task.id)
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text("Execute & Collect", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 6. Recent Activity / Orders
         item {
             Text("Recent Product Orders", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
         }
@@ -350,7 +557,7 @@ fun MemberHomeScreen(
                     ) {
                         Column {
                             Text("Order #${order.orderNumber}", fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                            Text("Total: $${order.totalAmount} • ${order.totalBv} BV", fontSize = 12.sp, color = TextSecondaryDark)
+                            Text("Total: ₹${String.format("%.2f", order.totalAmount)} • ${order.totalBv} BV", fontSize = 12.sp, color = TextSecondaryDark)
                         }
 
                         Surface(

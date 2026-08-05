@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "OmniControl"
+rootProject.name = "EarnaGo"
 
 include(":app")

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -56,7 +57,7 @@ fun ProductMarketplaceScreen(
                 title = { Text("Product Marketplace", color = TextPrimaryDark, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
                     }
                 },
                 actions = {
@@ -218,7 +219,7 @@ fun ProductMarketplaceScreen(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text("Total Price:", color = TextSecondaryDark)
-                                    Text("$${String.format("%.2f", cartTotalAmount)}", fontWeight = FontWeight.Bold, color = EmeraldSuccess)
+                                    Text("₹${String.format("%.2f", cartTotalAmount)}", fontWeight = FontWeight.Bold, color = EmeraldSuccess)
                                 }
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text("Commission BV Weight:", color = TextSecondaryDark)
@@ -234,12 +235,12 @@ fun ProductMarketplaceScreen(
                             FilterChip(
                                 selected = selectedPaymentMethod == "WALLET",
                                 onClick = { selectedPaymentMethod = "WALLET" },
-                                label = { Text("Internal Wallet ($${String.format("%.2f", activeUser?.walletBalance ?: 0.0)})") }
+                                label = { Text("Wallet (₹${String.format("%.2f", activeUser?.walletBalance ?: 0.0)})") }
                             )
                             FilterChip(
-                                selected = selectedPaymentMethod == "CARD",
-                                onClick = { selectedPaymentMethod = "CARD" },
-                                label = { Text("Credit Card") }
+                                selected = selectedPaymentMethod == "UPI",
+                                onClick = { selectedPaymentMethod = "UPI" },
+                                label = { Text("UPI (GPay/PhonePe)") }
                             )
                         }
                     }
@@ -353,7 +354,7 @@ fun ProductCard(
                 ) {
                     Column {
                         Text("Price", fontSize = 10.sp, color = TextSecondaryDark)
-                        Text("$${product.price}", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = EmeraldSuccess)
+                        Text("₹${String.format("%.2f", product.price)}", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = EmeraldSuccess)
                     }
 
                     Button(

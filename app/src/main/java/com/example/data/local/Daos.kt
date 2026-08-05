@@ -114,3 +114,37 @@ interface AIDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(message: AIMessageEntity)
 }
+
+@Dao
+interface TaskDao {
+    @Query("SELECT * FROM earnago_tasks ORDER BY createdAt DESC")
+    fun getAllTasks(): Flow<List<EarnaGoTaskEntity>>
+
+    @Query("SELECT * FROM earnago_tasks WHERE module = :moduleCategory ORDER BY createdAt DESC")
+    fun getTasksByModule(moduleCategory: EarnaGoModuleCategory): Flow<List<EarnaGoTaskEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateTask(task: EarnaGoTaskEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllTasks(tasks: List<EarnaGoTaskEntity>)
+
+    @Query("UPDATE earnago_tasks SET isCompleted = 1 WHERE id = :taskId")
+    suspend fun markTaskCompleted(taskId: String)
+}
+
+@Dao
+interface OwnerProfileDao {
+    @Query("SELECT * FROM owner_profile WHERE id = 'owner_profile'")
+    fun getOwnerProfileFlow(): Flow<OwnerProfileEntity?>
+
+    @Query("SELECT * FROM owner_profile WHERE id = 'owner_profile'")
+    suspend fun getOwnerProfile(): OwnerProfileEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateOwnerProfile(profile: OwnerProfileEntity)
+
+    @Query("UPDATE owner_profile SET totalRoyaltyEarnedInr = totalRoyaltyEarnedInr + :royaltyAmount WHERE id = 'owner_profile'")
+    suspend fun addRoyaltyEarnings(royaltyAmount: Double)
+}
+

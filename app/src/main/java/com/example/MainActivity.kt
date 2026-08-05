@@ -140,6 +140,26 @@ class MainActivity : ComponentActivity() {
                                 )
 
                                 NavigationBarItem(
+                                    selected = currentRoute == NavRoutes.LiveStream.route,
+                                    onClick = {
+                                        navController.navigate(NavRoutes.LiveStream.route) {
+                                            popUpTo(NavRoutes.Home.route) { saveState = true }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    },
+                                    icon = { Icon(Icons.Default.LiveTv, contentDescription = "Live") },
+                                    label = { Text("Live Stream", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = NavyDeep,
+                                        selectedTextColor = AccentGold,
+                                        indicatorColor = AccentGold,
+                                        unselectedIconColor = TextSecondaryDark,
+                                        unselectedTextColor = TextSecondaryDark
+                                    )
+                                )
+
+                                NavigationBarItem(
                                     selected = currentRoute == NavRoutes.AIAssistant.route,
                                     onClick = {
                                         navController.navigate(NavRoutes.AIAssistant.route) {

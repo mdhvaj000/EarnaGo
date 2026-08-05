@@ -63,4 +63,10 @@ class Converters {
 
     @TypeConverter
     fun toAICategory(value: String): AICategory = enumValueOf(value)
+
+    @TypeConverter
+    fun fromEarnaGoModuleCategory(value: EarnaGoModuleCategory): String = value.name
+
+    @TypeConverter
+    fun toEarnaGoModuleCategory(value: String): EarnaGoModuleCategory = enumValueOf(value)
 }

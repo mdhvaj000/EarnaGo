@@ -157,7 +157,7 @@ fun RankCommissionScreen(
                             }
 
                             Column(horizontalAlignment = Alignment.End) {
-                                Text("+$${String.format("%.2f", comm.commissionAmount)}", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = EmeraldSuccess)
+                                Text("+₹${String.format("%.2f", comm.commissionAmount)}", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = EmeraldSuccess)
                                 Text("Tier ${comm.tierLevel}", fontSize = 10.sp, color = RoyalBlue, fontWeight = FontWeight.Bold)
                             }
                         }

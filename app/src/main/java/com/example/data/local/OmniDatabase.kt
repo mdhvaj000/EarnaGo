@@ -16,9 +16,11 @@ import com.example.data.model.*
         ReferralNodeEntity::class,
         CommissionRecordEntity::class,
         KycDocumentEntity::class,
-        AIMessageEntity::class
+        AIMessageEntity::class,
+        EarnaGoTaskEntity::class,
+        OwnerProfileEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -31,6 +33,8 @@ abstract class OmniDatabase : RoomDatabase() {
     abstract fun referralDao(): ReferralDao
     abstract fun kycDao(): KycDao
     abstract fun aiDao(): AIDao
+    abstract fun taskDao(): TaskDao
+    abstract fun ownerProfileDao(): OwnerProfileDao
 
     companion object {
         @Volatile

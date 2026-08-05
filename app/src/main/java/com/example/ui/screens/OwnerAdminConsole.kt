@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,8 +35,22 @@ fun OwnerAdminConsole(
     val allUsers by viewModel.allUsers.collectAsState()
     val products by viewModel.products.collectAsState()
     val kycSubmissions by viewModel.allKycSubmissions.collectAsState()
+    val ownerProfileState by viewModel.ownerProfile.collectAsState()
+    val allTasks by viewModel.allTasks.collectAsState()
 
-    var activeTab by remember { mutableStateOf(0) } // 0: Overview, 1: Products, 2: KYC Review, 3: RBAC Users
+    var activeTab by remember { mutableStateOf(0) } // 0: Overview, 1: Owner Bank & Royalty, 2: Products, 3: KYC Review, 4: RBAC Users
+
+    // Owner Bank Data State
+    val ownerProfile = ownerProfileState ?: OwnerProfileEntity()
+    var ownerName by remember(ownerProfile) { mutableStateOf(ownerProfile.ownerName) }
+    var bankAccName by remember(ownerProfile) { mutableStateOf(ownerProfile.bankAccountName) }
+    var bankAccNo by remember(ownerProfile) { mutableStateOf(ownerProfile.bankAccountNumber) }
+    var bankIfsc by remember(ownerProfile) { mutableStateOf(ownerProfile.bankIfscCode) }
+    var bankName by remember(ownerProfile) { mutableStateOf(ownerProfile.bankName) }
+    var upiVpa by remember(ownerProfile) { mutableStateOf(ownerProfile.upiVpa) }
+    var panNumber by remember(ownerProfile) { mutableStateOf(ownerProfile.panNumber) }
+    var gstinNumber by remember(ownerProfile) { mutableStateOf(ownerProfile.gstinNumber) }
+    var royaltyPctText by remember(ownerProfile) { mutableStateOf(ownerProfile.platformRoyaltyPct.toString()) }
 
     // Dialog state for adding/editing products
     var showAddProductDialog by remember { mutableStateOf(false) }
@@ -55,7 +70,7 @@ fun OwnerAdminConsole(
                 title = { Text("Owner & Admin Control Console", color = TextPrimaryDark, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = NavyDeep)
@@ -80,12 +95,18 @@ fun OwnerAdminConsole(
                     Text("System Overview", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = activeTab == 1, onClick = { activeTab = 1 }) {
-                    Text("Products Inventory (${products.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                    Text("Owner Bank & 5% Royalty", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = activeTab == 2, onClick = { activeTab = 2 }) {
-                    Text("KYC Queue (${kycSubmissions.count { it.status == KycStatus.PENDING }})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                    Text("15 Modules Tasks (${allTasks.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = activeTab == 3, onClick = { activeTab = 3 }) {
+                    Text("Products Inventory (${products.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                }
+                Tab(selected = activeTab == 4, onClick = { activeTab = 4 }) {
+                    Text("KYC Queue (${kycSubmissions.count { it.status == KycStatus.PENDING }})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                }
+                Tab(selected = activeTab == 5, onClick = { activeTab = 5 }) {
                     Text("RBAC Users (${allUsers.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
             }
@@ -104,17 +125,33 @@ fun OwnerAdminConsole(
                                 border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(AccentGold, RoyalBlue)))
                             ) {
                                 Column(modifier = Modifier.padding(20.dp)) {
-                                    Text("Global Platform Metrics", fontSize = 12.sp, color = AccentGold, fontWeight = FontWeight.Bold)
+                                    Text("Global Platform & Sole Owner Royalty Metrics", fontSize = 12.sp, color = AccentGold, fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.height(12.dp))
 
                                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                         Column {
                                             Text("Gross Product Sales", fontSize = 11.sp, color = TextSecondaryDark)
-                                            Text("$${String.format("%.2f", totalGrossSales)}", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = EmeraldSuccess)
+                                            Text("₹${String.format("%.2f", totalGrossSales)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = EmeraldSuccess)
                                         }
                                         Column {
                                             Text("Commissions Disbursed", fontSize = 11.sp, color = TextSecondaryDark)
-                                            Text("$${String.format("%.2f", totalCommissionsPaid)}", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AccentGold)
+                                            Text("₹${String.format("%.2f", totalCommissionsPaid)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AccentGold)
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Divider(color = SurfaceBorderDark)
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                        Column {
+                                            Text("Owner 5% Royalty Earnings", fontSize = 11.sp, color = TextSecondaryDark)
+                                            Text("₹${String.format("%.2f", ownerProfile.totalRoyaltyEarnedInr)}", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AccentGold)
+                                        }
+                                        Surface(shape = RoundedCornerShape(8.dp), color = EmeraldSuccess.copy(alpha = 0.2f)) {
+                                            Text("5% Auto-Credit Active", color = EmeraldSuccess, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                         }
                                     }
                                 }
@@ -138,7 +175,7 @@ fun OwnerAdminConsole(
                                 ) {
                                     Column {
                                         Text("${order.orderNumber} • ${order.buyerName}", fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                                        Text("Total: $${order.totalAmount} • ${order.totalBv} BV", fontSize = 11.sp, color = TextSecondaryDark)
+                                        Text("Total: ₹${String.format("%.2f", order.totalAmount)} • ${order.totalBv} BV", fontSize = 11.sp, color = TextSecondaryDark)
                                     }
                                     Text(order.status.name, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = EmeraldSuccess)
                                 }
@@ -148,6 +185,169 @@ fun OwnerAdminConsole(
                 }
 
                 1 -> {
+                    // Owner Profile, Bank Account & Royalty Control Tab
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = DarkSlate),
+                                border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(AccentGold, RoyalBlue)))
+                            ) {
+                                Column(modifier = Modifier.padding(20.dp)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.AccountBalance, contentDescription = null, tint = AccentGold, modifier = Modifier.size(24.dp))
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Text("Owner Bank Account & Royalty Settlement", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
+                                    }
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    OutlinedTextField(
+                                        value = ownerName,
+                                        onValueChange = { ownerName = it },
+                                        label = { Text("Sole Founder / Owner Full Name") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    OutlinedTextField(
+                                        value = bankAccName,
+                                        onValueChange = { bankAccName = it },
+                                        label = { Text("Bank Account Holder Name") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        OutlinedTextField(
+                                            value = bankAccNo,
+                                            onValueChange = { bankAccNo = it },
+                                            label = { Text("Account Number") },
+                                            modifier = Modifier.weight(1.2f),
+                                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                        )
+                                        OutlinedTextField(
+                                            value = bankIfsc,
+                                            onValueChange = { bankIfsc = it },
+                                            label = { Text("IFSC Code") },
+                                            modifier = Modifier.weight(0.8f),
+                                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        OutlinedTextField(
+                                            value = bankName,
+                                            onValueChange = { bankName = it },
+                                            label = { Text("Bank Name & Branch") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                        )
+                                        OutlinedTextField(
+                                            value = upiVpa,
+                                            onValueChange = { upiVpa = it },
+                                            label = { Text("UPI VPA ID") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        OutlinedTextField(
+                                            value = panNumber,
+                                            onValueChange = { panNumber = it },
+                                            label = { Text("PAN Number") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                        )
+                                        OutlinedTextField(
+                                            value = gstinNumber,
+                                            onValueChange = { gstinNumber = it },
+                                            label = { Text("GSTIN (Optional)") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    OutlinedTextField(
+                                        value = royaltyPctText,
+                                        onValueChange = { royaltyPctText = it },
+                                        label = { Text("Owner Platform Royalty Rate (%)") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                    )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Button(
+                                        onClick = {
+                                            val rPct = royaltyPctText.toDoubleOrNull() ?: 5.0
+                                            val updatedProfile = ownerProfile.copy(
+                                                ownerName = ownerName,
+                                                bankAccountName = bankAccName,
+                                                bankAccountNumber = bankAccNo,
+                                                bankIfscCode = bankIfsc,
+                                                bankName = bankName,
+                                                upiVpa = upiVpa,
+                                                panNumber = panNumber,
+                                                gstinNumber = gstinNumber,
+                                                platformRoyaltyPct = rPct
+                                            )
+                                            viewModel.updateOwnerProfile(updatedProfile)
+                                        },
+                                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(Icons.Default.Save, contentDescription = null)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Save Owner Bank & Royalty Settings", fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                2 -> {
+                    // 15 Modules Task Manager Tab
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        item {
+                            Text("Active Tasks across 15 Earning Modules", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
+                        }
+
+                        items(allTasks) { task ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = CardBackgroundDark)
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Text(task.module.displayName, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AccentGold)
+                                        Text(task.partnerName, fontSize = 11.sp, color = TextSecondaryDark)
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(task.title, fontWeight = FontWeight.Bold, color = TextPrimaryDark, fontSize = 14.sp)
+                                    Text("Reward: ₹${task.rewardAmount} (5% Royalty: ₹${task.rewardAmount * 0.05})", fontSize = 12.sp, color = EmeraldSuccess)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                3 -> {
                     // Products Inventory Management Tab
                     Column(modifier = Modifier.fillMaxSize()) {
                         Button(
@@ -177,7 +377,7 @@ fun OwnerAdminConsole(
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(prod.name, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                                            Text("SKU: ${prod.sku} • Price: $${prod.price} • BV: ${prod.bvWeight}", fontSize = 11.sp, color = TextSecondaryDark)
+                                            Text("SKU: ${prod.sku} • Price: ₹${String.format("%.2f", prod.price)} • BV: ${prod.bvWeight}", fontSize = 11.sp, color = TextSecondaryDark)
                                         }
 
                                         IconButton(onClick = { viewModel.deleteProduct(prod.id) }) {
@@ -190,7 +390,7 @@ fun OwnerAdminConsole(
                     }
                 }
 
-                2 -> {
+                4 -> {
                     // KYC Review Queue Tab
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         if (kycSubmissions.isEmpty()) {
@@ -233,7 +433,7 @@ fun OwnerAdminConsole(
                     }
                 }
 
-                3 -> {
+                5 -> {
                     // RBAC User Management Tab
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(allUsers) { usr ->
@@ -250,7 +450,7 @@ fun OwnerAdminConsole(
                                     Column {
                                         Text(usr.fullName, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
                                         Text("Role: ${usr.role.name} • Rank: ${usr.rank.title}", fontSize = 12.sp, color = TextSecondaryDark)
-                                        Text("Wallet: $${usr.walletBalance} • TV: ${usr.teamVolume} BV", fontSize = 11.sp, color = AccentGold)
+                                        Text("Wallet: ₹${String.format("%.2f", usr.walletBalance)} • TV: ${usr.teamVolume} BV", fontSize = 11.sp, color = AccentGold)
                                     }
 
                                     Surface(
@@ -277,7 +477,7 @@ fun OwnerAdminConsole(
                 Column {
                     OutlinedTextField(value = prodName, onValueChange = { prodName = it }, label = { Text("Product Name") }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = prodPrice, onValueChange = { prodPrice = it }, label = { Text("Price ($)") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = prodPrice, onValueChange = { prodPrice = it }, label = { Text("Price (₹ INR)") }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(value = prodBv, onValueChange = { prodBv = it }, label = { Text("BV Weight") }, modifier = Modifier.fillMaxWidth())
                 }

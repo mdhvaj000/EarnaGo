@@ -39,8 +39,8 @@ object GeminiAssistant {
 
         try {
             val systemInstructionText = """
-                You are OmniControl AI, the enterprise network marketing business coach and assistant.
-                User Role: $userRole, Current Rank: $userRank, Team Volume: $$teamVolume BV.
+                You are EarnaGo AI, the autonomous network marketing and digital business coach.
+                User Role: $userRole, Current Rank: $userRank, Team Volume: ₹$teamVolume BV.
                 Provide structured, highly practical, product-focused advice strictly encouraging legitimate product sales and team leadership.
                 Category: ${category.name}.
             """.trimIndent()
@@ -98,7 +98,7 @@ object GeminiAssistant {
     ): String {
         return when (category) {
             AICategory.GENERAL_COACH -> """
-                🎯 **OmniControl AI Coach Strategy Report**
+                🎯 **EarnaGo AI Coach Strategy Report**
                 
                 **Current Rank:** $userRank ($teamVolume BV Team Volume)
                 
@@ -113,17 +113,17 @@ object GeminiAssistant {
             AICategory.MARKETING_POST -> """
                 🚀 **Generated Social Media Campaign Copy**
                 
-                "Elevate your business productivity with OmniControl Digital Suites! 💡 Discover enterprise-grade marketing analytics and seamless product commerce in one place. 
+                "Elevate your business productivity with EarnaGo Digital Suites! 💡 Discover enterprise-grade marketing analytics and seamless product commerce in one place. 
                 
-                👉 Check out our product marketplace today via my link or send me a DM to learn more! #OmniControl #NetworkCommerce #ProductInnovation"
+                👉 Check out our product marketplace today via my link or send me a DM to learn more! #EarnaGo #NetworkCommerce #DigitalBusiness"
             """.trimIndent()
 
             AICategory.SALES_PREDICTION -> """
                 📊 **Predictive Sales Analytics**
                 
-                - **Projected Monthly Volume:** $$${String.format("%.2f", teamVolume * 1.18)} BV (+18% projected MoM growth)
+                - **Projected Monthly Volume:** ₹${String.format("%.2f", teamVolume * 1.18)} BV (+18% projected MoM growth)
                 - **Next Rank Threshold:** ${getNextRankTarget(userRank, teamVolume)}
-                - **Top Product Conversion:** OmniControl Digital Academy Kit (45% of team sales volume)
+                - **Top Product Conversion:** EarnaGo Digital Academy Kit (45% of team sales volume)
             """.trimIndent()
 
             AICategory.TEAM_INSIGHT -> """

@@ -10,4 +10,6 @@ sealed class NavRoutes(val route: String, val title: String) {
     object AIAssistant : NavRoutes("ai_assistant", "AI Business Assistant")
     object KYC : NavRoutes("kyc", "KYC Verification")
     object AdminConsole : NavRoutes("admin_console", "Owner Console")
+    object LiveStream : NavRoutes("live_stream", "Live Broadcast & Network")
+    object LegalCharter : NavRoutes("legal_charter", "Direct Selling Legal Charter")
 }

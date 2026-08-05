@@ -86,5 +86,18 @@ fun OmniNavGraph(
                 onBack = { navController.popBackStack() }
             )
         }
+
+        composable(NavRoutes.LiveStream.route) {
+            LiveStreamScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(NavRoutes.LegalCharter.route) {
+            LegalCharterScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }
