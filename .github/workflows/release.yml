@@ -36,13 +36,13 @@ jobs:
         run: ./gradlew bundleRelease --stacktrace
 
       - name: Upload Release APK Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-release-apk
           path: app/build/outputs/apk/release/app-release.apk
 
       - name: Upload Release AAB Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-release-aab
           path: app/build/outputs/bundle/release/app-release.aab
