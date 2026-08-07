@@ -103,17 +103,37 @@ fun MemberHomeScreen(
                         }
                     }
 
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = RoyalBlue.copy(alpha = 0.2f)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = RoyalBlue.copy(alpha = 0.2f),
+                            modifier = Modifier.clickable { onNavigateTo("ai_assistant") }
                         ) {
-                            Icon(Icons.Default.Speed, contentDescription = null, tint = VibrantCyan, modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Inspect AI", color = VibrantCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Speed, contentDescription = null, tint = VibrantCyan, modifier = Modifier.size(12.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Inspect AI", color = VibrantCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(6.dp))
+
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = AccentGold.copy(alpha = 0.2f),
+                            modifier = Modifier.clickable { viewModel.checkForStudioUpdates() }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.SystemUpdate, contentDescription = null, tint = AccentGold, modifier = Modifier.size(12.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Check Updates", color = AccentGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }

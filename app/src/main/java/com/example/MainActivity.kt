@@ -38,6 +38,11 @@ class MainActivity : ComponentActivity() {
                 val uiEvent by viewModel.uiEvent.collectAsState()
                 val activeUser by viewModel.activeUser.collectAsState()
 
+                val appUpdateInfo by viewModel.appUpdateInfo.collectAsState()
+                val showUpdatePrompt by viewModel.showUpdatePrompt.collectAsState()
+                val isDownloadingUpdate by viewModel.isDownloadingUpdate.collectAsState()
+                val updateProgress by viewModel.updateProgress.collectAsState()
+
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
@@ -47,6 +52,16 @@ class MainActivity : ComponentActivity() {
                         viewModel.clearUiEvent()
                     }
                 }
+
+                // Automatic In-App Studio Build Update Prompt Dialog
+                com.example.ui.components.AppUpdatePromptDialog(
+                    updateInfo = appUpdateInfo,
+                    showPrompt = showUpdatePrompt,
+                    isDownloading = isDownloadingUpdate,
+                    downloadProgress = updateProgress,
+                    onUpdateNow = { viewModel.performAutoUpdateInstall() },
+                    onDismiss = { viewModel.dismissUpdatePrompt() }
+                )
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),

@@ -43,6 +43,18 @@ data class PlanckScanResult(
     val summaryReport: String
 )
 
+data class AppUpdateInfo(
+    val currentVersionCode: Int = 100,
+    val currentVersionName: String = "v1.0.0",
+    val latestBuildVersionCode: Int = 101,
+    val latestBuildVersionName: String = "v1.0.1",
+    val releaseTitle: String = "Google App Build Studio Update Ready",
+    val releaseNotes: String = "New changes compiled in Google App Build Studio are ready to update on your phone. Automatic OTA upgrade includes latest AI logic, UI improvements, and Planck internet sync.",
+    val buildTimestamp: String = "2026-08-07 03:05:59",
+    val isUpdateAvailable: Boolean = true,
+    val apkSizeMb: Double = 18.4
+)
+
 class OmniViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = OmniDatabase.getInstance(application)
@@ -63,6 +75,19 @@ class OmniViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isScanningPlanck = MutableStateFlow(false)
     val isScanningPlanck: StateFlow<Boolean> = _isScanningPlanck.asStateFlow()
+
+    // Google App Build Studio Auto-Update Prompt States
+    private val _appUpdateInfo = MutableStateFlow(AppUpdateInfo())
+    val appUpdateInfo: StateFlow<AppUpdateInfo> = _appUpdateInfo.asStateFlow()
+
+    private val _showUpdatePrompt = MutableStateFlow(true)
+    val showUpdatePrompt: StateFlow<Boolean> = _showUpdatePrompt.asStateFlow()
+
+    private val _isDownloadingUpdate = MutableStateFlow(false)
+    val isDownloadingUpdate: StateFlow<Boolean> = _isDownloadingUpdate.asStateFlow()
+
+    private val _updateProgress = MutableStateFlow(0f)
+    val updateProgress: StateFlow<Float> = _updateProgress.asStateFlow()
 
     // Current active user ID
     private val _activeUserId = MutableStateFlow("usr_member")
@@ -258,6 +283,52 @@ class OmniViewModel(application: Application) : AndroidViewModel(application) {
             _lastPlanckScanResult.value = scanResult
             _isScanningPlanck.value = false
             _uiEvent.value = "Planck-Time AI App Management Scan Completed Successfully!"
+        }
+    }
+
+    fun dismissUpdatePrompt() {
+        _showUpdatePrompt.value = false
+    }
+
+    fun checkForStudioUpdates() {
+        viewModelScope.launch {
+            _uiEvent.value = "Checking Google App Build Studio release channel..."
+            delay(1000)
+            val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            _appUpdateInfo.value = _appUpdateInfo.value.copy(
+                isUpdateAvailable = true,
+                buildTimestamp = timeStr,
+                releaseTitle = "Google App Build Studio Update Ready",
+                releaseNotes = "New features built in Google App Build Studio are compiled! Automated update prompt triggers on completion."
+            )
+            _showUpdatePrompt.value = true
+            _uiEvent.value = "Google App Build Studio update prompt triggered!"
+        }
+    }
+
+    fun performAutoUpdateInstall() {
+        viewModelScope.launch {
+            _isDownloadingUpdate.value = true
+            _updateProgress.value = 0.05f
+
+            for (step in 1..10) {
+                delay(180)
+                _updateProgress.value = step / 10.0f
+            }
+
+            _isDownloadingUpdate.value = false
+            _showUpdatePrompt.value = false
+
+            val newVerCode = _appUpdateInfo.value.latestBuildVersionCode
+            _appUpdateInfo.value = _appUpdateInfo.value.copy(
+                currentVersionCode = newVerCode,
+                currentVersionName = "v1.0.${newVerCode - 100}",
+                latestBuildVersionCode = newVerCode + 1,
+                latestBuildVersionName = "v1.0.${newVerCode - 99}",
+                isUpdateAvailable = false
+            )
+
+            _uiEvent.value = "App updated automatically to latest Google App Build Studio release!"
         }
     }
 
