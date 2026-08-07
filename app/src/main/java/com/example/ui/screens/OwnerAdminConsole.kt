@@ -95,18 +95,21 @@ fun OwnerAdminConsole(
                     Text("System Overview", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = activeTab == 1, onClick = { activeTab = 1 }) {
-                    Text("Owner Bank & 5% Royalty", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                    Text("⚡ Planck AI Internet Control", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = activeTab == 2, onClick = { activeTab = 2 }) {
-                    Text("15 Modules Tasks (${allTasks.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                    Text("Owner Bank & 5% Royalty", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = activeTab == 3, onClick = { activeTab = 3 }) {
-                    Text("Products Inventory (${products.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                    Text("15 Modules Tasks (${allTasks.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = activeTab == 4, onClick = { activeTab = 4 }) {
-                    Text("KYC Queue (${kycSubmissions.count { it.status == KycStatus.PENDING }})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                    Text("Products Inventory (${products.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = activeTab == 5, onClick = { activeTab = 5 }) {
+                    Text("KYC Queue (${kycSubmissions.count { it.status == KycStatus.PENDING }})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+                }
+                Tab(selected = activeTab == 6, onClick = { activeTab = 6 }) {
                     Text("RBAC Users (${allUsers.size})", modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
                 }
             }
@@ -185,6 +188,129 @@ fun OwnerAdminConsole(
                 }
 
                 1 -> {
+                    // Planck AI Live Internet Management & Control Tab
+                    val isInternetConnected by viewModel.isLiveInternetConnected.collectAsState()
+                    val isAutonomousActive by viewModel.isAutonomousManagementActive.collectAsState()
+                    val planckLogs by viewModel.planckActivityStream.collectAsState()
+                    val isScanning by viewModel.isScanningPlanck.collectAsState()
+                    val lastScanResult by viewModel.lastPlanckScanResult.collectAsState()
+
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = DarkSlate),
+                                border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(EmeraldSuccess, AccentGold)))
+                            ) {
+                                Column(modifier = Modifier.padding(20.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column {
+                                            Text("Autonomous App AI Manager", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
+                                            Text("Planck-Time Scale Internet Infrastructure", fontSize = 11.sp, color = AccentGold)
+                                        }
+
+                                        Surface(shape = RoundedCornerShape(8.dp), color = EmeraldSuccess.copy(alpha = 0.2f)) {
+                                            Text("0.038ms Latency", color = EmeraldSuccess, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("Real-Time Internet Edge Node Sync", fontSize = 13.sp, color = TextPrimaryDark)
+                                        Switch(
+                                            checked = isInternetConnected,
+                                            onCheckedChange = { viewModel.toggleInternetConnection() }
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("Autonomous App Management", fontSize = 13.sp, color = TextPrimaryDark)
+                                        Switch(
+                                            checked = isAutonomousActive,
+                                            onCheckedChange = { viewModel.toggleAutonomousManagement() }
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Button(
+                                        onClick = { viewModel.runPlanckTimeAIScan() },
+                                        enabled = !isScanning,
+                                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        if (isScanning) {
+                                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = NavyDeep)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Scanning App Infrastructure...")
+                                        } else {
+                                            Icon(Icons.Default.Bolt, contentDescription = null)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Execute Instant Planck AI Optimization Scan", fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        lastScanResult?.let { res ->
+                            item {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = CardDefaults.cardColors(containerColor = CardBackgroundDark)
+                                ) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text("Latest Scan Output (${res.scanTimestamp})", fontWeight = FontWeight.Bold, color = AccentGold, fontSize = 13.sp)
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(res.summaryReport, fontSize = 12.sp, color = TextPrimaryDark, lineHeight = 18.sp)
+                                    }
+                                }
+                            }
+                        }
+
+                        item {
+                            Text("Recent Live Planck Telemetry Logs", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
+                        }
+
+                        items(planckLogs) { log ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = CardBackgroundDark)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Text(log.category, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = VibrantCyan)
+                                        Text(log.planckTimeScale, fontSize = 10.sp, color = TextSecondaryDark)
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(log.activity, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = TextPrimaryDark)
+                                    Text(log.aiAutomatedDecision, fontSize = 11.sp, color = EmeraldSuccess)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                2 -> {
                     // Owner Profile, Bank Account & Royalty Control Tab
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         item {
@@ -320,7 +446,7 @@ fun OwnerAdminConsole(
                     }
                 }
 
-                2 -> {
+                3 -> {
                     // 15 Modules Task Manager Tab
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         item {
@@ -347,7 +473,7 @@ fun OwnerAdminConsole(
                     }
                 }
 
-                3 -> {
+                4 -> {
                     // Products Inventory Management Tab
                     Column(modifier = Modifier.fillMaxSize()) {
                         Button(
@@ -390,7 +516,7 @@ fun OwnerAdminConsole(
                     }
                 }
 
-                4 -> {
+                5 -> {
                     // KYC Review Queue Tab
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         if (kycSubmissions.isEmpty()) {
@@ -433,7 +559,7 @@ fun OwnerAdminConsole(
                     }
                 }
 
-                5 -> {
+                6 -> {
                     // RBAC User Management Tab
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(allUsers) { usr ->

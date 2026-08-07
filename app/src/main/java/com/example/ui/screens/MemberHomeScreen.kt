@@ -60,6 +60,66 @@ fun MemberHomeScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // 0. Live Internet & Planck-Time Autonomous AI Status Banner
+        item {
+            val isInternetConnected by viewModel.isLiveInternetConnected.collectAsState()
+            val isAutonomousActive by viewModel.isAutonomousManagementActive.collectAsState()
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateTo("ai_assistant") },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = DarkSlate),
+                border = CardDefaults.outlinedCardBorder().copy(
+                    brush = Brush.horizontalGradient(listOf(EmeraldSuccess, AccentGold))
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(CircleShape)
+                                .background(if (isInternetConnected) EmeraldSuccess else CrimsonError)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = if (isInternetConnected) "LIVE INTERNET ACTIVE • 0.038ms" else "OFFLINE SIMULATION MODE",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isInternetConnected) EmeraldSuccess else CrimsonError
+                            )
+                            Text(
+                                text = if (isAutonomousActive) "Planck-Time AI App Management: ACTIVE" else "AI Management: MANUAL",
+                                fontSize = 10.sp,
+                                color = AccentGold
+                            )
+                        }
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = RoyalBlue.copy(alpha = 0.2f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Speed, contentDescription = null, tint = VibrantCyan, modifier = Modifier.size(12.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Inspect AI", color = VibrantCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
         // 1. User Header & Profile Overview
         item {
             Card(
