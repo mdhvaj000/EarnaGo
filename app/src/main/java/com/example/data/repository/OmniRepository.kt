@@ -2,6 +2,8 @@ package com.example.data.repository
 
 import com.example.data.local.*
 import com.example.data.model.*
+import com.example.domain.security.AppPermission
+import com.example.domain.security.RbacSecurityEngine
 import com.example.engine.CommissionRankEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -670,10 +672,16 @@ class OmniRepository(
         Result.success(Unit)
     }
 
-    // Admin Review KYC
-    suspend fun reviewKyc(userId: String, approve: Boolean, adminNotes: String): Result<Unit> = withContext(Dispatchers.IO) {
+    // Admin Review KYC with RBAC Check
+    suspend fun reviewKyc(actorUserId: String, targetUserId: String, approve: Boolean, adminNotes: String): Result<Unit> = withContext(Dispatchers.IO) {
+        val actor = userDao.getUserById(actorUserId)
+        val authResult = RbacSecurityEngine.evaluatePermission(actor, AppPermission.MANAGE_KYC)
+        if (!authResult.isGranted) {
+            return@withContext Result.failure(SecurityException(authResult.message))
+        }
+
         val newStatus = if (approve) KycStatus.APPROVED else KycStatus.REJECTED
-        val existingKyc = kycDao.getKycByUserId(userId).firstOrNull()
+        val existingKyc = kycDao.getKycByUserId(targetUserId).firstOrNull()
         if (existingKyc != null) {
             kycDao.insertOrUpdateKyc(
                 existingKyc.copy(
@@ -684,10 +692,83 @@ class OmniRepository(
             )
         }
 
-        val user = userDao.getUserById(userId)
+        val user = userDao.getUserById(targetUserId)
         if (user != null) {
             userDao.insertOrUpdateUser(user.copy(kycStatus = newStatus))
         }
+        Result.success(Unit)
+    }
+
+    // Custom Commission Distribution with RBAC Authorization Check
+    suspend fun distributeCommissionWithRbac(
+        actorUserId: String,
+        recipientUserId: String,
+        amount: Double,
+        reason: String
+    ): Result<CommissionRecordEntity> = withContext(Dispatchers.IO) {
+        val actor = userDao.getUserById(actorUserId)
+        val authResult = RbacSecurityEngine.evaluatePermission(actor, AppPermission.DISTRIBUTE_COMMISSIONS)
+        if (!authResult.isGranted) {
+            return@withContext Result.failure(SecurityException(authResult.message))
+        }
+
+        val recipient = userDao.getUserById(recipientUserId)
+            ?: return@withContext Result.failure(Exception("Recipient user not found"))
+
+        if (amount <= 0.0) {
+            return@withContext Result.failure(Exception("Commission amount must be greater than zero."))
+        }
+
+        val commissionRecord = CommissionRecordEntity(
+            id = "comm_rbac_" + UUID.randomUUID().toString().take(8),
+            recipientUserId = recipient.id,
+            recipientName = recipient.fullName,
+            sourceOrderId = "manual_auth_override",
+            sourceBuyerName = actor?.fullName ?: "Authorized Admin",
+            sourceBv = amount * 2,
+            commissionAmount = amount,
+            tierLevel = 1,
+            type = CommissionType.DIRECT_SALE,
+            isVerifiedProductSale = true,
+            createdAt = System.currentTimeMillis()
+        )
+
+        commissionDao.insertCommission(commissionRecord)
+
+        // Credit Recipient Wallet
+        userDao.insertOrUpdateUser(
+            recipient.copy(
+                walletBalance = recipient.walletBalance + amount,
+                pendingCommission = recipient.pendingCommission + amount
+            )
+        )
+
+        walletDao.insertTransaction(
+            WalletTransactionEntity(
+                id = UUID.randomUUID().toString(),
+                userId = recipient.id,
+                amount = amount,
+                type = TransactionType.COMMISSION_CREDIT,
+                status = TransactionStatus.COMPLETED,
+                description = "RBAC Authorized Commission Override: $reason (Approved by ${actor?.fullName ?: "Admin"})"
+            )
+        )
+
+        Result.success(commissionRecord)
+    }
+
+    // Add New Product with RBAC Authorization Check
+    suspend fun addNewProductWithRbac(
+        actorUserId: String,
+        product: ProductEntity
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        val actor = userDao.getUserById(actorUserId)
+        val authResult = RbacSecurityEngine.evaluatePermission(actor, AppPermission.MANAGE_PRODUCTS)
+        if (!authResult.isGranted) {
+            return@withContext Result.failure(SecurityException(authResult.message))
+        }
+
+        productDao.insertOrUpdateProduct(product)
         Result.success(Unit)
     }
 
@@ -753,8 +834,14 @@ class OmniRepository(
         Result.success(Pair(memberNetEarnings, ownerRoyaltyAmount))
     }
 
-    // Update Owner Profile Bank Details & Royalty Config
-    suspend fun updateOwnerProfile(profile: OwnerProfileEntity): Result<Unit> = withContext(Dispatchers.IO) {
+    // Update Owner Profile Bank Details & Royalty Config with RBAC Authorization Check
+    suspend fun updateOwnerProfile(actorUserId: String, profile: OwnerProfileEntity): Result<Unit> = withContext(Dispatchers.IO) {
+        val actor = userDao.getUserById(actorUserId)
+        val authResult = RbacSecurityEngine.evaluatePermission(actor, AppPermission.MODIFY_ROYALTY_CONFIG)
+        if (!authResult.isGranted) {
+            return@withContext Result.failure(SecurityException(authResult.message))
+        }
+
         ownerProfileDao.insertOrUpdateOwnerProfile(profile)
         Result.success(Unit)
     }

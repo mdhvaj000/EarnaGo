@@ -47,6 +47,11 @@ fun AIBusinessAssistantScreen(
     val planckLogs by viewModel.planckActivityStream.collectAsState()
     val lastScanResult by viewModel.lastPlanckScanResult.collectAsState()
     val isScanning by viewModel.isScanningPlanck.collectAsState()
+    val appHealthReport by viewModel.appHealthReport.collectAsState()
+    val cloudSyncStatus by viewModel.googleCloudSyncStatus.collectAsState()
+    val isCloudSyncing by viewModel.isCloudSyncing.collectAsState()
+    val dailyBusinessReport by viewModel.dailyBusinessReport.collectAsState()
+    val isGeneratingDailyReport by viewModel.isGeneratingDailyReport.collectAsState()
 
     val context = LocalContext.current
 
@@ -273,23 +278,219 @@ fun AIBusinessAssistantScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                Button(
-                                    onClick = { viewModel.runPlanckTimeAIScan() },
-                                    enabled = !isScanning,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(48.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
-                                    shape = RoundedCornerShape(12.dp)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    if (isScanning) {
-                                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = NavyDeep)
+                                    Button(
+                                        onClick = { viewModel.runPlanckTimeAIScan() },
+                                        enabled = !isScanning,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(48.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        if (isScanning) {
+                                            CircularProgressIndicator(modifier = Modifier.size(18.dp), color = NavyDeep)
+                                        } else {
+                                            Icon(Icons.Default.Bolt, contentDescription = null, modifier = Modifier.size(16.dp))
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text("Planck AI Scan", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                        }
+                                    }
+
+                                    OutlinedButton(
+                                        onClick = { viewModel.runAutonomousAppHealthScan() },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(48.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = VibrantCyan),
+                                        shape = RoundedCornerShape(12.dp),
+                                        border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(VibrantCyan, EmeraldSuccess)))
+                                    ) {
+                                        Icon(Icons.Default.BugReport, contentDescription = null, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("AI Health Audit", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // 2. Google Cloud Realtime Data Persistence Status Card
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = CardBackgroundDark),
+                            border = CardDefaults.outlinedCardBorder().copy(
+                                brush = Brush.horizontalGradient(listOf(RoyalBlue, VibrantCyan))
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.CloudSync, contentDescription = null, tint = VibrantCyan, modifier = Modifier.size(22.dp))
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Executing Planck AI Scan...", fontWeight = FontWeight.Bold)
+                                        Column {
+                                            Text("Google Cloud Live Data Persistence", fontWeight = FontWeight.Bold, color = TextPrimaryDark, fontSize = 14.sp)
+                                            Text(cloudSyncStatus.cloudRegion, fontSize = 10.sp, color = TextSecondaryDark)
+                                        }
+                                    }
+
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = EmeraldSuccess.copy(alpha = 0.2f)
+                                    ) {
+                                        Text("LIVE GCP SYNC", color = EmeraldSuccess, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Text(cloudSyncStatus.cloudProvider, fontSize = 11.sp, color = TextPrimaryDark, fontWeight = FontWeight.SemiBold)
+                                Text("Storage Bucket: ${cloudSyncStatus.storageBucketPath}", fontSize = 10.sp, color = AccentGold)
+                                Text("Records Synced: ${cloudSyncStatus.totalRecordsSynced} | Latency: ${cloudSyncStatus.syncLatencyMs}ms | Last Sync: ${cloudSyncStatus.lastSyncTimestamp}", fontSize = 10.sp, color = TextSecondaryDark)
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                Button(
+                                    onClick = { viewModel.triggerGoogleCloudSync() },
+                                    enabled = !isCloudSyncing,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = RoyalBlue, contentColor = TextPrimaryDark),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    if (isCloudSyncing) {
+                                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = TextPrimaryDark)
                                     } else {
-                                        Icon(Icons.Default.Bolt, contentDescription = null)
+                                        Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Trigger Instant Planck AI App Scan", fontWeight = FontWeight.Bold)
+                                        Text("Trigger Immediate Google Cloud Backup", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // 3. AI CEO Daily Business Operational Intelligence & Analysis Card
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = DarkSlate),
+                            border = CardDefaults.outlinedCardBorder().copy(
+                                brush = Brush.horizontalGradient(listOf(AccentGold, RoyalBlue))
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(18.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.Analytics, contentDescription = null, tint = AccentGold, modifier = Modifier.size(22.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column {
+                                            Text("AI Daily Business Operations Report", fontWeight = FontWeight.Bold, color = TextPrimaryDark, fontSize = 14.sp)
+                                            Text("Autonomous Daily Analysis & Strategic Intelligence", fontSize = 10.sp, color = AccentGold)
+                                        }
+                                    }
+
+                                    IconButton(onClick = { viewModel.runDailyBusinessOperationalAnalysis() }, enabled = !isGeneratingDailyReport) {
+                                        if (isGeneratingDailyReport) {
+                                            CircularProgressIndicator(modifier = Modifier.size(18.dp), color = AccentGold)
+                                        } else {
+                                            Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = AccentGold)
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                dailyBusinessReport?.let { report ->
+                                    Text("Report Date: ${report.reportTimestamp}", fontSize = 10.sp, color = TextSecondaryDark)
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    // Metrics summary strip
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Surface(
+                                            modifier = Modifier.weight(1f),
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = CardBackgroundDark
+                                        ) {
+                                            Column(modifier = Modifier.padding(8.dp)) {
+                                                Text("Gross Volume", fontSize = 9.sp, color = TextSecondaryDark)
+                                                Text("₹${String.format("%,.0f", report.grossSalesVolumeInr)}", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = VibrantCyan)
+                                            }
+                                        }
+
+                                        Surface(
+                                            modifier = Modifier.weight(1f),
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = CardBackgroundDark
+                                        ) {
+                                            Column(modifier = Modifier.padding(8.dp)) {
+                                                Text("Owner 5% Royalty", fontSize = 9.sp, color = TextSecondaryDark)
+                                                Text("₹${String.format("%,.0f", report.totalOwnerRoyaltyInr)}", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = AccentGold)
+                                            }
+                                        }
+
+                                        Surface(
+                                            modifier = Modifier.weight(1f),
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = CardBackgroundDark
+                                        ) {
+                                            Column(modifier = Modifier.padding(8.dp)) {
+                                                Text("Network Payouts", fontSize = 9.sp, color = TextSecondaryDark)
+                                                Text("₹${String.format("%,.0f", report.totalDistributorCommissionsInr)}", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = EmeraldSuccess)
+                                            }
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Text("💡 Strategic Advice & Recommendations", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = AccentGold)
+                                    report.strategicAdvice.forEach { adv ->
+                                        Text("• $adv", fontSize = 11.sp, color = TextPrimaryDark, modifier = Modifier.padding(vertical = 2.dp))
+                                    }
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    Text("🤖 Automated AI Decisions Executed", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = VibrantCyan)
+                                    report.automatedDecisions.forEach { dec ->
+                                        Text("• $dec", fontSize = 11.sp, color = TextPrimaryDark, modifier = Modifier.padding(vertical = 2.dp))
+                                    }
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    Text("🏆 Achievements & Milestones", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = EmeraldSuccess)
+                                    report.achievementsAndMilestones.forEach { ach ->
+                                        Text("• $ach", fontSize = 11.sp, color = TextPrimaryDark, modifier = Modifier.padding(vertical = 2.dp))
+                                    }
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    Text("⚙️ Operational & Catalog Changes", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TextSecondaryDark)
+                                    report.operationalChanges.forEach { chg ->
+                                        Text("• $chg", fontSize = 11.sp, color = TextPrimaryDark, modifier = Modifier.padding(vertical = 2.dp))
+                                    }
+                                } ?: run {
+                                    Button(
+                                        onClick = { viewModel.runDailyBusinessOperationalAnalysis() },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep)
+                                    ) {
+                                        Text("Generate Daily AI Business Operational Report", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                     }
                                 }
                             }

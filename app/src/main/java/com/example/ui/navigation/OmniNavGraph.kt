@@ -96,6 +96,7 @@ fun OmniNavGraph(
 
         composable(NavRoutes.LegalCharter.route) {
             LegalCharterScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
         }

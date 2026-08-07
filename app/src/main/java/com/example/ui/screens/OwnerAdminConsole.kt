@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.*
+import com.example.domain.security.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.OmniViewModel
 import java.util.UUID
@@ -58,6 +59,11 @@ fun OwnerAdminConsole(
     var prodPrice by remember { mutableStateOf("") }
     var prodBv by remember { mutableStateOf("") }
     var prodCategory by remember { mutableStateOf(ProductCategory.DIGITAL) }
+
+    // RBAC Manual Commission Distribution Override State
+    var overrideRecipientId by remember { mutableStateOf("usr_member") }
+    var overrideAmountText by remember { mutableStateOf("2500") }
+    var overrideReasonText by remember { mutableStateOf("Executive Leadership Performance Bonus") }
 
     val user = activeUser ?: return
 
@@ -560,8 +566,225 @@ fun OwnerAdminConsole(
                 }
 
                 6 -> {
-                    // RBAC User Management Tab
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    // RBAC User Management & Security Authorization Center
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        // 1. Active Security Session Banner
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = CardBackgroundDark),
+                                border = CardDefaults.outlinedCardBorder().copy(
+                                    brush = Brush.horizontalGradient(listOf(AccentGold, VibrantCyan))
+                                )
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.Security, contentDescription = null, tint = AccentGold, modifier = Modifier.size(24.dp))
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Column {
+                                                Text("Domain & Data RBAC Security Engine", fontWeight = FontWeight.Bold, color = TextPrimaryDark, fontSize = 14.sp)
+                                                Text("Current Active Actor: ${user.fullName}", fontSize = 11.sp, color = VibrantCyan)
+                                            }
+                                        }
+
+                                        Surface(
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = when (user.role) {
+                                                UserRole.OWNER -> VibrantCyan.copy(alpha = 0.2f)
+                                                UserRole.ADMIN -> AccentGold.copy(alpha = 0.2f)
+                                                UserRole.MEMBER -> RoyalBlue.copy(alpha = 0.2f)
+                                            }
+                                        ) {
+                                            Text(
+                                                text = "ROLE: ${user.role.name}",
+                                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 11.sp,
+                                                color = when (user.role) {
+                                                    UserRole.OWNER -> VibrantCyan
+                                                    UserRole.ADMIN -> AccentGold
+                                                    UserRole.MEMBER -> RoyalBlue
+                                                }
+                                            )
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    // Role Switcher for Live RBAC Authorization Verification
+                                    Text("🧪 Test Live Authorization Enforcement (Switch Session Actor):", fontSize = 11.sp, color = TextSecondaryDark)
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        OutlinedButton(
+                                            onClick = { viewModel.switchActiveUser("usr_owner") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                contentColor = if (user.role == UserRole.OWNER) VibrantCyan else TextSecondaryDark
+                                            ),
+                                            border = CardDefaults.outlinedCardBorder().copy(
+                                                brush = Brush.horizontalGradient(if (user.role == UserRole.OWNER) listOf(VibrantCyan, EmeraldSuccess) else listOf(DarkSlate, DarkSlate))
+                                            )
+                                        ) {
+                                            Text("Owner", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+
+                                        OutlinedButton(
+                                            onClick = { viewModel.switchActiveUser("usr_admin") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                contentColor = if (user.role == UserRole.ADMIN) AccentGold else TextSecondaryDark
+                                            ),
+                                            border = CardDefaults.outlinedCardBorder().copy(
+                                                brush = Brush.horizontalGradient(if (user.role == UserRole.ADMIN) listOf(AccentGold, AccentGold) else listOf(DarkSlate, DarkSlate))
+                                            )
+                                        ) {
+                                            Text("Admin", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+
+                                        OutlinedButton(
+                                            onClick = { viewModel.switchActiveUser("usr_member") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                contentColor = if (user.role == UserRole.MEMBER) RoyalBlue else TextSecondaryDark
+                                            ),
+                                            border = CardDefaults.outlinedCardBorder().copy(
+                                                brush = Brush.horizontalGradient(if (user.role == UserRole.MEMBER) listOf(RoyalBlue, RoyalBlue) else listOf(DarkSlate, DarkSlate))
+                                            )
+                                        ) {
+                                            Text("Member", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // 2. Custom Commission Distribution Authorization Action
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = CardBackgroundDark),
+                                border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(AccentGold, RoyalBlue)))
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.PriceCheck, contentDescription = null, tint = AccentGold, modifier = Modifier.size(20.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Sensitive Action: Custom Commission Distribution", fontWeight = FontWeight.Bold, color = TextPrimaryDark, fontSize = 13.sp)
+                                    }
+                                    Text("Requires 'AppPermission.DISTRIBUTE_COMMISSIONS' (Owner or Admin role required).", fontSize = 10.sp, color = TextSecondaryDark)
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    OutlinedTextField(
+                                        value = overrideRecipientId,
+                                        onValueChange = { overrideRecipientId = it },
+                                        label = { Text("Recipient User ID") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        OutlinedTextField(
+                                            value = overrideAmountText,
+                                            onValueChange = { overrideAmountText = it },
+                                            label = { Text("Amount (₹ INR)") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                        )
+
+                                        OutlinedTextField(
+                                            value = overrideReasonText,
+                                            onValueChange = { overrideReasonText = it },
+                                            label = { Text("Override Authorization Reason") },
+                                            modifier = Modifier.weight(1.5f),
+                                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Button(
+                                        onClick = {
+                                            val amt = overrideAmountText.toDoubleOrNull() ?: 0.0
+                                            viewModel.distributeManualCommission(
+                                                recipientUserId = overrideRecipientId,
+                                                amount = amt,
+                                                reason = overrideReasonText
+                                            )
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ) {
+                                        Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Authorize & Distribute Commission Override", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    }
+                                }
+                            }
+                        }
+
+                        // 3. RBAC Permission Capabilities Matrix
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = DarkSlate)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("🛡️ Platform RBAC Capability Matrix", fontWeight = FontWeight.Bold, color = TextPrimaryDark, fontSize = 13.sp)
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    AppPermission.values().forEach { perm ->
+                                        val authCheck = RbacSecurityEngine.evaluatePermission(user, perm)
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 4.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(perm.title, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TextPrimaryDark)
+                                                Text("Req: ${perm.minimumRoleRequired.name}", fontSize = 10.sp, color = TextSecondaryDark)
+                                            }
+
+                                            Surface(
+                                                shape = RoundedCornerShape(6.dp),
+                                                color = if (authCheck.isGranted) EmeraldSuccess.copy(alpha = 0.2f) else CrimsonError.copy(alpha = 0.2f)
+                                            ) {
+                                                Text(
+                                                    text = if (authCheck.isGranted) "AUTHORIZED" else "LOCKED",
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = if (authCheck.isGranted) EmeraldSuccess else CrimsonError
+                                                )
+                                            }
+                                        }
+                                        HorizontalDivider(color = CardBackgroundDark, thickness = 0.5.dp)
+                                    }
+                                }
+                            }
+                        }
+
+                        // 4. System Registered Users List
+                        item {
+                            Text("Registered Network Users (${allUsers.size})", fontWeight = FontWeight.Bold, color = AccentGold, fontSize = 13.sp)
+                        }
+
                         items(allUsers) { usr ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),

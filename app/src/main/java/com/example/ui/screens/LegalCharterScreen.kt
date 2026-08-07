@@ -21,12 +21,16 @@ import com.example.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LegalCharterScreen(
+    viewModel: com.example.ui.viewmodel.OmniViewModel,
     onBack: () -> Unit
 ) {
+    val aiLegalReport by viewModel.aiLegalReport.collectAsState()
+    val isScanningLegal by viewModel.isScanningLegal.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Direct Selling Legal Charter & Rules", color = TextPrimaryDark, fontWeight = FontWeight.Bold, fontSize = 16.sp) },
+                title = { Text("Direct Selling Legal Charter & AI Compliance", color = TextPrimaryDark, fontWeight = FontWeight.Bold, fontSize = 16.sp) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimaryDark)
@@ -44,6 +48,118 @@ fun LegalCharterScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // AI Legal & Cybersecurity Compliance Upgrade Engine Banner
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardBackgroundDark),
+                    border = CardDefaults.outlinedCardBorder().copy(
+                        brush = Brush.horizontalGradient(listOf(AccentGold, VibrantCyan))
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Verified,
+                                    contentDescription = null,
+                                    tint = AccentGold,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "AI Legal & Cybersecurity Engine",
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextPrimaryDark,
+                                        fontSize = 14.sp
+                                    )
+                                    Text(
+                                        text = "Automated Indian Statutory Upgrades (2026 Standard)",
+                                        fontSize = 11.sp,
+                                        color = VibrantCyan
+                                    )
+                                }
+                            }
+
+                            if (isScanningLegal) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = AccentGold,
+                                    strokeWidth = 2.dp
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "AI constantly monitors, interprets, and automatically upgrades EarnaGo's Terms & Conditions, Privacy Policy, Data Protection, and Cybersecurity protocols in accordance with Indian Statutory Laws.",
+                            fontSize = 11.sp,
+                            color = TextSecondaryDark,
+                            lineHeight = 15.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        Button(
+                            onClick = { viewModel.runAILegalComplianceScan() },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isScanningLegal,
+                            colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(Icons.Default.Security, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (isScanningLegal) "Running AI Legal Audit..." else "Run AI Indian Legal & Cybersecurity Audit",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                        }
+
+                        if (aiLegalReport != null) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = DarkSlate)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "Compliance Score: ${aiLegalReport?.indianLawComplianceScore}%",
+                                            fontWeight = FontWeight.Bold,
+                                            color = EmeraldSuccess,
+                                            fontSize = 12.sp
+                                        )
+                                        Text(
+                                            text = aiLegalReport?.legalVersion ?: "",
+                                            fontSize = 10.sp,
+                                            color = TextSecondaryDark
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = aiLegalReport?.auditSummary ?: "",
+                                        fontSize = 11.sp,
+                                        color = TextPrimaryDark,
+                                        lineHeight = 16.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             // Government Compliance Header Banner
             item {
                 Card(

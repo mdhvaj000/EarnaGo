@@ -183,7 +183,13 @@ fun AuthScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Toggle Login vs Register
+        // Toggle Authentication Mode: Member Sign In vs Referred Member Join vs Owner Master Portal
+        var authTabMode by remember { mutableStateOf(0) } // 0: Sign In, 1: Referred Member Join, 2: Owner Master Registration
+
+        // Owner Registration Specific Fields
+        var ownerBankAcc by remember { mutableStateOf("918273645012") }
+        var ownerIfsc by remember { mutableStateOf("SBIN0004210") }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -192,115 +198,231 @@ fun AuthScreen(
                 .padding(4.dp)
         ) {
             Button(
-                onClick = { isRegisterMode = false },
+                onClick = { authTabMode = 0 },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (!isRegisterMode) AccentGold else Color.Transparent,
-                    contentColor = if (!isRegisterMode) NavyDeep else TextSecondaryDark
+                    containerColor = if (authTabMode == 0) AccentGold else Color.Transparent,
+                    contentColor = if (authTabMode == 0) NavyDeep else TextSecondaryDark
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Sign In", fontWeight = FontWeight.Bold)
+                Text("Sign In", fontWeight = FontWeight.Bold, fontSize = 12.sp)
             }
 
             Button(
-                onClick = { isRegisterMode = true },
-                modifier = Modifier.weight(1f),
+                onClick = { authTabMode = 1 },
+                modifier = Modifier.weight(1.2f),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isRegisterMode) AccentGold else Color.Transparent,
-                    contentColor = if (isRegisterMode) NavyDeep else TextSecondaryDark
+                    containerColor = if (authTabMode == 1) AccentGold else Color.Transparent,
+                    contentColor = if (authTabMode == 1) NavyDeep else TextSecondaryDark
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Register Member", fontWeight = FontWeight.Bold)
+                Text("Referred Member", fontWeight = FontWeight.Bold, fontSize = 11.sp)
+            }
+
+            Button(
+                onClick = { authTabMode = 2 },
+                modifier = Modifier.weight(1.1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (authTabMode == 2) VibrantCyan else Color.Transparent,
+                    contentColor = if (authTabMode == 2) NavyDeep else TextSecondaryDark
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Main Owner", fontWeight = FontWeight.Bold, fontSize = 11.sp)
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (isRegisterMode) {
-            OutlinedTextField(
-                value = fullName,
-                onValueChange = { fullName = it },
-                label = { Text("Full Name") },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email Address") },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = sponsorCode,
-                onValueChange = { sponsorCode = it },
-                label = { Text("Sponsor Referral Code") },
-                leadingIcon = { Icon(Icons.Default.QrCode, contentDescription = null) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    if (fullName.isNotBlank() && email.isNotBlank()) {
-                        viewModel.registerNewMember(fullName, email, phone, sponsorCode)
-                        onAuthSuccess()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Join as Member (₹1,000 Bonus)", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Button(
-                    onClick = {
-                        onAuthSuccess()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
+        when (authTabMode) {
+            1 -> {
+                // REFERRED MEMBER REGISTRATION
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "Enter Portal as ${activeUser?.fullName ?: "Member"}",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "🔗 Join via Sponsor Referral Link",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AccentGold
                     )
-                }
+                    OutlinedTextField(
+                        value = fullName,
+                        onValueChange = { fullName = it },
+                        label = { Text("Full Name") },
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                    )
 
-                OutlinedButton(
-                    onClick = {
-                        viewModel.switchActiveUser("usr_owner")
-                        onAuthSuccess()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = AccentGold),
-                    shape = RoundedCornerShape(12.dp),
-                    border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(AccentGold, RoyalBlue)))
-                ) {
-                    Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Owner Master Login (Bank & 5% Royalty Control)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Email Address") },
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                    )
+
+                    OutlinedTextField(
+                        value = sponsorCode,
+                        onValueChange = { sponsorCode = it },
+                        label = { Text("Sponsor Referral Code (Link Connected)") },
+                        leadingIcon = { Icon(Icons.Default.QrCode, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGold)
+                    )
+
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = RoyalBlue.copy(alpha = 0.2f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(modifier = Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = VibrantCyan, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Member Privileges: Starter ₹1,000 Wallet Bonus, Downline Tree Access, Task Rewards & Direct Selling Catalog.",
+                                fontSize = 10.sp,
+                                color = TextPrimaryDark
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            if (fullName.isNotBlank() && email.isNotBlank()) {
+                                viewModel.registerNewMember(fullName, email, phone, sponsorCode)
+                                onAuthSuccess()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Register Member via Referral", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            2 -> {
+                // MAIN OWNER MASTER REGISTRATION & AUTHORIZATION
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "👑 Main Owner Master Portal & Bank Setup",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = VibrantCyan
+                    )
+
+                    OutlinedTextField(
+                        value = fullName,
+                        onValueChange = { fullName = it },
+                        label = { Text("Sole Founder / Owner Name") },
+                        leadingIcon = { Icon(Icons.Default.AdminPanelSettings, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = VibrantCyan)
+                    )
+
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Official Master Owner Email") },
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = VibrantCyan)
+                    )
+
+                    OutlinedTextField(
+                        value = ownerBankAcc,
+                        onValueChange = { ownerBankAcc = it },
+                        label = { Text("Owner Settlement Bank Account No.") },
+                        leadingIcon = { Icon(Icons.Default.AccountBalance, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = VibrantCyan)
+                    )
+
+                    OutlinedTextField(
+                        value = ownerIfsc,
+                        onValueChange = { ownerIfsc = it },
+                        label = { Text("Bank IFSC Code") },
+                        leadingIcon = { Icon(Icons.Default.Pin, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = VibrantCyan)
+                    )
+
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = AccentGold.copy(alpha = 0.2f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(modifier = Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Lock, contentDescription = null, tint = AccentGold, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Exclusive Owner Rights: 5% Platform Royalty Auto-Settlement, Module Task Management, KYC Queue Approval, System Control.",
+                                fontSize = 10.sp,
+                                color = TextPrimaryDark
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            val nameToUse = if (fullName.isBlank()) "Sole App Owner" else fullName
+                            val emailToUse = if (email.isBlank()) "owner@earnago.in" else email
+                            viewModel.registerMasterOwner(nameToUse, emailToUse, phone, ownerBankAcc, ownerIfsc)
+                            onAuthSuccess()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = VibrantCyan, contentColor = NavyDeep),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Register / Authorize Master Owner", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            else -> {
+                // DEFAULT MEMBER SIGN IN & ACTIVE ACCOUNT ENTER
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Button(
+                        onClick = {
+                            onAuthSuccess()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentGold, contentColor = NavyDeep),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "Enter Portal as ${activeUser?.fullName ?: "Member"}",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.switchActiveUser("usr_owner")
+                            onAuthSuccess()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = AccentGold),
+                        shape = RoundedCornerShape(12.dp),
+                        border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(AccentGold, RoyalBlue)))
+                    ) {
+                        Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Owner Master Login (Bank & 5% Royalty Control)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
