@@ -195,7 +195,7 @@ fun AppUpdatePromptDialog(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondaryDark),
-                                border = ButtonDefaults.outlinedButtonBorder.copy(brush = Brush.horizontalGradient(listOf(SurfaceBorderDark, SurfaceBorderDark)))
+                                border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(brush = Brush.horizontalGradient(listOf(SurfaceBorderDark, SurfaceBorderDark)))
                             ) {
                                 Text("Later", fontSize = 12.sp)
                             }

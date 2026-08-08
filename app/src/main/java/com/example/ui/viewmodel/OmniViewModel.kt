@@ -82,6 +82,7 @@ data class AppSelfHealingReport(
     val statusSummary: String
 )
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class OmniViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = OmniDatabase.getInstance(application)

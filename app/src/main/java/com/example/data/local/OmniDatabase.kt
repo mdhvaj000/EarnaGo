@@ -46,7 +46,7 @@ abstract class OmniDatabase : RoomDatabase() {
                     context.applicationContext,
                     OmniDatabase::class.java,
                     "omnicontrol_db"
-                ).fallbackToDestructiveMigration().build()
+                ).fallbackToDestructiveMigration(dropAllTables = true).build()
                 INSTANCE = instance
                 instance
             }

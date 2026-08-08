@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -220,7 +220,7 @@ fun LegalCharterScreen(
                     title = "2. 30-Day Cooling-Off & Buy-Back Guarantee",
                     subtitle = "100% Refund Protection for Distributors & Customers",
                     description = "Distributors and consumers enjoy a 30-day cooling-off period. Unopened physical products and starter packs can be returned within 30 days for a full refund (minus applicable logistics costs).",
-                    icon = Icons.Default.AssignmentReturn,
+                    icon = Icons.AutoMirrored.Filled.AssignmentReturn,
                     badgeText = "Rule 6(2) Guaranteed"
                 )
             }
@@ -242,7 +242,7 @@ fun LegalCharterScreen(
                     title = "4. Automated GST Invoicing & Tax Compliance",
                     subtitle = "18% GST Breakdown on All Transactions",
                     description = "Every transaction includes a legal tax invoice detailing Central GST (CGST), State GST (SGST), or Integrated GST (IGST) with HSN/SAC codes. All commissions are disbursed with mandatory TDS deduction as per Indian Income Tax laws.",
-                    icon = Icons.Default.ReceiptLong,
+                    icon = Icons.AutoMirrored.Filled.ReceiptLong,
                     badgeText = "GST & Income Tax Compliant"
                 )
             }

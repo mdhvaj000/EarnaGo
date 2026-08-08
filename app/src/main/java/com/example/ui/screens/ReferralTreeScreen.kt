@@ -201,7 +201,7 @@ fun DownlineNodeCard(member: UserEntity) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Divider(color = SurfaceBorderDark)
+            HorizontalDivider(color = SurfaceBorderDark)
 
             Spacer(modifier = Modifier.height(12.dp))
 
